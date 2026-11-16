@@ -373,7 +373,7 @@ async function uploadLarge(blob,name,modId,kind,label,progress,_retried){
  const params={mod:modId,kind,name:clean};
  if(!S){
   btn&&(btn.textContent='Preparing '+label+'…');
-  for(let t=1;;t++){try{const j=await largeCall('/init',{...params,size:blob.size,parts:n},null,await authToken());S=largeSessions[sig]={uploadId:j.uploadId,parts:[]};break}catch(e){if(t>=5||(e.status&&e.status<500&&e.status!==429))throw e;await sleep(1500*t)}}
+  for(let t=1;;t++){try{const j=await largeCall('/init',{...params,size:blob.size,parts:n},null,await authToken());S=largeSessions[sig]={uploadId:j.uploadId,parts:[]};persistLargeSessions();break}catch(e){if(t>=5||(e.status&&e.status<500&&e.status!==429))throw e;await sleep(1500*t)}}
  }
  for(let i=0;i<S.parts.length;i++){counted+=partSize(i+1)}
  prog.done+=counted;paint(0);
@@ -386,7 +386,7 @@ async function uploadLarge(blob,name,modId,kind,label,progress,_retried){
      const token=await authToken(refreshed);
      const j=await sendLargePart(`${LARGE_API}/part?${new URLSearchParams({...params,uploadId:S.uploadId,part:i+1,size:blob.size,parts:n})}`,token,chunk,loaded=>paint(loaded));
      if(!j.etag)throw new Error('Server did not confirm the chunk.');
-     S.parts.push({partNumber:i+1,etag:j.etag});prog.done+=chunk.size;counted+=chunk.size;paint(0);break;
+     S.parts.push({partNumber:i+1,etag:j.etag});persistLargeSessions();prog.done+=chunk.size;counted+=chunk.size;paint(0);break;
     }catch(e){
      if(e.code==='NO_SESSION')throw e;
      if(e.status===401&&!refreshed){refreshed=true;continue}
@@ -400,10 +400,10 @@ async function uploadLarge(blob,name,modId,kind,label,progress,_retried){
   btn&&(btn.textContent='Finalizing '+label+'…');
   let j;
   for(let t=1;;t++){try{j=await largeCall('/complete',{...params,uploadId:S.uploadId,size:blob.size},{parts:S.parts},await authToken());break}catch(e){if(e.code==='NO_SESSION'||t>=5||(e.status&&e.status<500&&e.status!==429))throw e;await sleep(1500*t)}}
-  S.url=j.url;return j.url;
+  S.url=j.url;persistLargeSessions();return j.url;
  }catch(e){
   if(e.code==='NO_SESSION'&&!_retried){ /* server lost this upload (expired or cleaned up): restart this one file once */
-   delete largeSessions[sig];prog.done-=counted;return uploadLarge(blob,name,modId,kind,label,prog,true);
+   delete largeSessions[sig];persistLargeSessions();prog.done-=counted;return uploadLarge(blob,name,modId,kind,label,prog,true);
   }
   throw e; /* the session is kept, so the next Publish click resumes where this stopped */
  }
@@ -658,6 +658,7 @@ document.addEventListener('submit',async e=>{
    // from making the existing mods appear to disappear.
    mods=await store.all();
    await loadSharedFeedback();
+    clearLargeSessions(m.id);
  }catch(uploadError){
    console.error(uploadError);
    publishingMod=false;window.onbeforeunload=null;
