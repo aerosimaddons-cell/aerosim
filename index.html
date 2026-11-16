@@ -384,7 +384,7 @@ async function uploadLarge(blob,name,modId,kind,label,progress,_retried){
    for(let tries=1;;tries++){
     try{
      const token=await authToken(refreshed);
-     const j=await sendLargePart(`${LARGE_API}/part?${new URLSearchParams({...params,uploadId:S.uploadId,part:i+1})}`,token,chunk,loaded=>paint(loaded));
+     const j=await sendLargePart(`${LARGE_API}/part?${new URLSearchParams({...params,uploadId:S.uploadId,part:i+1,size:blob.size,parts:n})}`,token,chunk,loaded=>paint(loaded));
      if(!j.etag)throw new Error('Server did not confirm the chunk.');
      S.parts.push({partNumber:i+1,etag:j.etag});prog.done+=chunk.size;counted+=chunk.size;paint(0);break;
     }catch(e){
