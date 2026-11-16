@@ -334,7 +334,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function authToken(forceRefresh){
  let {data}=await sb.auth.getSession(),s=data&&data.session;
  if(s&&(forceRefresh||(s.expires_at&&s.expires_at*1000-Date.now()<90000))){const r=await sb.auth.refreshSession();if(r.data&&r.data.session)s=r.data.session}
- if(!s)throw new Error('Please sign in again before publishing.');
+ if(!s)throw new Error('BROWSER SESSION MISSING: the page cannot find your signed-in session.');
  return s.access_token;
 }
 /* Small JSON call to the Worker (init / complete). Errors carry .status and .code. */
