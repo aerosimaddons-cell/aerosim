@@ -297,11 +297,6 @@ html[data-theme=day] dialog .db textarea::placeholder { color: #64748b; opacity:
       <label>PC file (.zip)<input type="file" name="pc" accept=".zip"></label>
       <label style="margin:0">Android file (.tme)<input type="file" name="and" accept=".tme"></label>
     </div>
-    <div id="aiScanStatus" role="status" aria-live="polite" style="display:none;margin:12px 0;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel,#101b2d)">
-      <div style="display:flex;align-items:center;gap:9px;font-weight:700"><span id="aiScanIcon">🛡️</span><span id="aiScanTitle">AI security review</span></div>
-      <p id="aiScanMessage" class="note" style="margin:7px 0 0">Your files will be checked before they can be published.</p>
-      <div id="aiScanResult" style="display:none;margin-top:9px;font-size:13px"></div>
-    </div>
     <label class="chk"><input type="checkbox" name="ok"><span>This mod is my own work or I have permission to share it, and it contains no malware.</span></label>
     <p class="note" id="err" role="alert" style="color:#ff8a8a;min-height:1.4em"></p>
     <button class="btn warn" type="submit">Upload mod</button>
@@ -323,8 +318,8 @@ const SEED=[];const _OLD_SEED=[
  {id:'d3',title:'Cairo (HECA) extra parking spots',cat:'Parking spots',tag:'HECA',author:'madebyadam',ver:'1.0',date:now-day,dl:0,demo:1,plat:['PC','Android'],desc:'14 new parking spots for Cairo International, Egypt.'}
 ];
 /* Shared cloud storage: Supabase is the source of truth for accounts and addons. */
-const SUPABASE_URL='https://sxaiucumqjoawxjlnctx.supabase.co';
-const SUPABASE_KEY='sb_publishable_5NeDLioURtf6s_zVAJuN9g_XRxZew8K';
+const SUPABASE_URL='https://mqczfatgxuhrhrkniulf.supabase.co';
+const SUPABASE_KEY='sb_publishable_IPnPyVMST_8R-5Rqi2EnnQ_Hae6zwty';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
 });
@@ -368,31 +363,14 @@ async function cleanupLarge(paths){try{const t=await authToken();const seen=new 
 /* Upload sessions survive a failed publish: if chunk 9 fails, pressing Publish again continues at chunk 9 (not chunk 1),
    and a file that finished uploading is never uploaded twice. Keyed by mod id + file identity. */
 const largeSessions={};
-function aiScanStatus(state,title,message,report){
- const box=document.querySelector('#aiScanStatus');if(!box)return;
- box.style.display='block';
- const icon=document.querySelector('#aiScanIcon'),heading=document.querySelector('#aiScanTitle'),msg=document.querySelector('#aiScanMessage'),result=document.querySelector('#aiScanResult');
- if(icon)icon.textContent=state==='safe'?'✅':state==='blocked'?'⛔':state==='review'?'🔎':state==='error'?'⚠️':'🛡️';
- if(heading)heading.textContent=title;
- if(msg)msg.textContent=message;
- if(result){
-  result.style.display=report?'block':'none';
-  if(report){
-   const score=Number.isFinite(Number(report.riskScore??report.risk_score))?Number(report.riskScore??report.risk_score):null;
-   const summary=report.summary||report.message||'';
-   const reasons=Array.isArray(report.reasons)?report.reasons:[];
-   result.innerHTML=(score===null?'':'<b>Risk score:</b> '+score+'/100 · ')+(summary?esc(summary):'')+(reasons.length?'<ul style="margin:6px 0 0;padding-left:20px">'+reasons.slice(0,4).map(x=>'<li>'+esc(typeof x==='string'?x:JSON.stringify(x))+'</li>').join('')+'</ul>':'');
-  }
- }
-}
 async function uploadLarge(blob,name,modId,kind,label,progress,_retried){
  const clean=cleanFileName(name),n=Math.ceil(blob.size/LARGE_PART_BYTES),btn=document.querySelector('#form button[type="submit"]');
  const sig=[modId,kind,clean,blob.size,blob.lastModified||0].join('|');
  const partSize=i=>i<n?LARGE_PART_BYTES:blob.size-(n-1)*LARGE_PART_BYTES; /* i is 1-based */
  const prog=progress||{total:blob.size,done:0,last:0};
  let S=largeSessions[sig],counted=0;
- const paint=loaded=>{const pct=Math.min(99,Math.floor((prog.done+loaded)/prog.total*100));prog.last=Math.max(prog.last||0,pct);if(btn)btn.textContent=`Uploading ${label} ${prog.last}%`;aiScanStatus('upload','Uploading '+label+' · '+prog.last+'%','Your file is being transferred securely. The AI security review starts as soon as upload finishes.')};
- if(S&&S.url){prog.done+=blob.size;paint(0);const status=S.scanStatus||'pending_review';aiScanStatus(status==='safe'?'safe':status==='blocked'?'blocked':'review',status==='safe'?'AI review passed':status==='blocked'?'AI review flagged this file':'Manual review required',S.scanReport?.summary||S.scanReport?.message||'The AI review result is ready.',S.scanReport);return {url:S.url,status,report:S.scanReport||null}}
+ const paint=loaded=>{if(!btn)return;const pct=Math.min(99,Math.floor((prog.done+loaded)/prog.total*100));prog.last=Math.max(prog.last||0,pct);btn.textContent=`Uploading ${label} ${prog.last}%`};
+ if(S&&S.url){prog.done+=blob.size;paint(0);return {url:S.url,status:S.scanStatus||'pending_review',report:S.scanReport||null}}
  const params={mod:modId,kind,name:clean};
  if(!S){
   btn&&(btn.textContent='Preparing '+label+'…');
@@ -420,19 +398,14 @@ async function uploadLarge(blob,name,modId,kind,label,progress,_retried){
     }
    }
   }
-  btn&&(btn.textContent='Uploading files 100%');
-  aiScanStatus('review','AI security review in progress','Upload complete. The AI is now inspecting the addon contents. This can take a little while; keep this window open.');
+  btn&&(btn.textContent='Finalizing '+label+'…');
   let j;
   for(let t=1;;t++){try{j=await largeCall('/complete',{...params,uploadId:S.uploadId,size:blob.size,parts:n},{parts:S.parts},await authToken());break}catch(e){if(e.code==='NO_SESSION'||t>=5||(e.status&&e.status<500&&e.status!==429))throw e;await sleep(1500*t)}}
-  S.url=j.url;S.scanStatus=j.status||'pending_review';S.scanReport=j.report||null;
-  const st=S.scanStatus,rep=S.scanReport;
-  aiScanStatus(st==='safe'?'safe':st==='blocked'?'blocked':'review',st==='safe'?'AI review passed':st==='blocked'?'AI review flagged this file':'Waiting for owner review',rep?.summary||rep?.message||(st==='safe'?'No issues were detected.':st==='blocked'?'The scanner found suspicious content.':'The scanner could not make a confident decision.'),rep);
-  return {url:j.url,status:st,report:rep};
+  S.url=j.url;S.scanStatus=j.status||'pending_review';S.scanReport=j.report||null;return {url:j.url,status:S.scanStatus,report:S.scanReport};
  }catch(e){
   if(e.code==='NO_SESSION'&&!_retried){ /* server lost this upload (expired or cleaned up): restart this one file once */
    delete largeSessions[sig];prog.done-=counted;return uploadLarge(blob,name,modId,kind,label,prog,true);
   }
-  aiScanStatus('error','Upload or scan needs attention',e.message||'The scan could not be completed. This addon will not be published automatically.',{message:e.message||'Scanner error'});
   throw e; /* the session is kept, so the next Publish click resumes where this stopped */
  }
 }
@@ -443,7 +416,6 @@ const toMod=row=>({id:row.id,title:row.title,author:row.author_username||'unknow
 const store={
  async open(){},
  async all(){const {data,error}=await sb.from('mods').select('*').eq('published',true).order('created_at',{ascending:false});if(error)throw error;return (data||[]).map(toMod)},
- async mine(){if(!cloudUser)return [];const {data,error}=await sb.from('mods').select('*').eq('author_id',cloudUser.id).eq('published',false).order('created_at',{ascending:false});if(error)throw error;const rows=(data||[]).map(r=>({...toMod(r),author:cloudProfile?.username||'you'}));for(const m of rows){const {data:scans}=await sb.from('mod_file_scans').select('platform,status,report').eq('mod_id',m.id).eq('user_id',cloudUser.id);m.scanResults=scans||[]}return rows},
  async put(m){
   if(!cloudUser)throw new Error('Please sign in again before publishing.');
   if(!m.id||!(/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(m.id)))m.id=crypto.randomUUID();
@@ -558,10 +530,10 @@ function hdr(){const u=me();$('#me').innerHTML=u?`<img class="av" src="${ava(u)}
 
 function openMod(id){
  const m=mods.find(x=>x.id===id);if(!m)return;
- const held=!!m.reviewPending;const f=(k,label,ext)=>m.files&&m.files[k]&&!held?`<button class="btn" data-dl="${k}">Download for ${label} <span style="opacity:.8;font-weight:500">${ext} · ${fmt(m.files[k].size)}</span></button>`:'';
+ const f=(k,label,ext)=>m.files&&m.files[k]?`<button class="btn" data-dl="${k}">Download for ${label} <span style="opacity:.8;font-weight:500">${ext} · ${fmt(m.files[k].size)}</span></button>`:'';
  const g=m.imgs&&m.imgs.length>1?`<div class="gal">${m.imgs.map((s,i)=>`<img src="${s}" data-g="${i}" class="${i?'':'on'}" alt="Screenshot ${i+1}">`).join('')}</div>`:'';
  const mine=me()&&me().username===m.author&&!m.demo;
- $('#dView').innerHTML=`<div class="dh"><h2>${esc(m.title)}</h2><button class="x" data-close aria-label="Close">&times;</button></div><div class="db">${held?'<div class="note" style="padding:12px;border:1px solid var(--line);border-radius:12px;margin-bottom:14px">This mod is private while its AI security review is pending. Only you can preview it here. Downloads are locked until approval.</div>':''}<div class="th"><span class="tag">${esc(m.cat)}</span>${thumb(m,1)}</div>${g}<div class="note">by <b class="who" ${user(m.author)?`data-u="${esc(m.author)}"`:''}>${esc(nm(m.author))}</b> · version ${esc(m.ver)} · ${new Date(m.date).toLocaleDateString()} · ${m.dl} downloads</div><div class="desc">${safeRich(m.desc)||'No description yet.'}</div><div class="dl">${m.demo?'<span class="note">This is a demo listing with no file attached. Upload your own mod to see downloads work.</span>':f('pc','PC','.zip')+f('and','Android','.tme')}${mine?'<button class="btn alt" data-editmod style="margin-left:auto">Edit mod</button><button class="btn alt" data-del>Delete mod</button>':''}</div></div>`;
+ $('#dView').innerHTML=`<div class="dh"><h2>${esc(m.title)}</h2><button class="x" data-close aria-label="Close">&times;</button></div><div class="db"><div class="th"><span class="tag">${esc(m.cat)}</span>${thumb(m,1)}</div>${g}<div class="note">by <b class="who" ${user(m.author)?`data-u="${esc(m.author)}"`:''}>${esc(nm(m.author))}</b> · version ${esc(m.ver)} · ${new Date(m.date).toLocaleDateString()} · ${m.dl} downloads</div><div class="desc">${safeRich(m.desc)||'No description yet.'}</div><div class="dl">${m.demo?'<span class="note">This is a demo listing with no file attached. Upload your own mod to see downloads work.</span>':f('pc','PC','.zip')+f('and','Android','.tme')}${mine?'<button class="btn alt" data-editmod style="margin-left:auto">Edit mod</button><button class="btn alt" data-del>Delete mod</button>':''}</div></div>`;
  $('#dView').dataset.id=id;$('#dView').showModal();
 }
 async function download(k){
@@ -569,9 +541,9 @@ async function download(k){
  if(!f.url)return toast('This file is not available yet.');const a=document.createElement('a');a.href=isExternal(f.path)?f.url:f.url+(f.url.includes('?')?'&':'?')+'download='+encodeURIComponent(f.name);a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();const {error}=await sb.rpc('increment_mod_download',{p_mod_id:m.id});if(!error){m.dl++;render()}toast('Downloading '+f.name);
 }
 
-async function profile(un){
- const u=user(un);if(!u)return toast('Profile not found');const mm=me(),own=mm&&mm.username===un;let pendingMods=[];if(own){try{pendingMods=(await store.mine()).map(p=>({...p,author:un,reviewPending:true}));for(const p of pendingMods){const old=mods.findIndex(x=>x.id===p.id);if(old>=0)mods.splice(old,1);mods.push(p)}}catch(e){console.error('Could not load your mods under review:',e);toast('Could not load pending mods: '+(e.message||e))}}const l=[...mods.filter(x=>x.author===un&&!x.reviewPending),...pendingMods];
- $('#dProf').innerHTML=`<div class="dh"><h2 style="font-size:22px">Profile</h2><button class="x" data-close aria-label="Close">&times;</button></div><div class="pb">${u.banner?`<img src="${u.banner}" alt="">`:''}</div><div class="ph"><img class="av" src="${ava(u)}" alt=""><div style="flex:1;min-width:140px;padding-bottom:6px"><h2>${esc(u.name)}</h2><div class="note">@${esc(un)} · ${u.demo?'demo profile':u.email?'Gmail verified':'member'}</div></div>${own?'<button class="btn alt" data-editp>Edit profile</button><button class="btn alt" data-out>Sign out</button>':`<button class="btn ${isF(un)?'alt':''}" data-f="${esc(un)}">${isF(un)?'Following':'Follow'}</button>`}</div><div class="db" style="padding-top:0"><div class="stats" style="margin:0 0 18px"><div><b>${folN(un)}</b>followers</div><div><b>${(D.follows[un]||[]).length}</b>following</div><div><b>${l.length}</b>mods</div></div><div class="grid">${l.length?l.map(m=>m.reviewPending?`<div class="review-card"><div style="position:relative">${card(m)}<span class="tag" style="position:absolute;top:12px;right:12px">Under review</span></div><button class="btn alt" style="width:100%;margin-top:8px" data-preview="${m.id}">Preview mod</button></div>`:card(m)).join(''):'<div class="empty">No mods yet.</div>'}</div></div>`;
+function profile(un){
+ const u=user(un);if(!u)return toast('Profile not found');const mm=me(),own=mm&&mm.username===un,l=mods.filter(x=>x.author===un);
+ $('#dProf').innerHTML=`<div class="dh"><h2 style="font-size:22px">Profile</h2><button class="x" data-close aria-label="Close">&times;</button></div><div class="pb">${u.banner?`<img src="${u.banner}" alt="">`:''}</div><div class="ph"><img class="av" src="${ava(u)}" alt=""><div style="flex:1;min-width:140px;padding-bottom:6px"><h2>${esc(u.name)}</h2><div class="note">@${esc(un)} · ${u.demo?'demo profile':u.email?'Gmail verified':'member'}</div></div>${own?'<button class="btn alt" data-editp>Edit profile</button><button class="btn alt" data-out>Sign out</button>':`<button class="btn ${isF(un)?'alt':''}" data-f="${esc(un)}">${isF(un)?'Following':'Follow'}</button>`}</div><div class="db" style="padding-top:0"><div class="stats" style="margin:0 0 18px"><div><b>${folN(un)}</b>followers</div><div><b>${(D.follows[un]||[]).length}</b>following</div><div><b>${l.length}</b>mods</div></div><div class="grid">${l.length?l.map(card).join(''):'<div class="empty">No mods yet.</div>'}</div></div>`;
  if(!$('#dProf').open)$('#dProf').showModal();
 }
 const bytes=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
@@ -841,8 +813,7 @@ function accForm(){
 document.addEventListener('submit',e=>{if(e.target.id!=='accF')return;const u=me(),d=new FormData(e.target);if(u){u.bio=(d.get('bio')||'').trim().slice(0,160);u.accent=d.get('accent')||ACC[0];const pp=(d.get('paypal')||'').trim().replace(/^.*paypal\.me\//i,'');u.paypal=/^[A-Za-z0-9]{1,20}$/.test(pp)?pp:''}},true);
 document.addEventListener('input',e=>{const f=e.target.form;if(!f||f.id!=='accF')return;if(e.target.name==='bio')$('#previewBio').textContent=e.target.value||'Your bio shows here.';if(e.target.name==='accent'){$('#profilePreview').style.setProperty('--ua',e.target.value);const b=$('#previewBanner');if(!b.style.backgroundImage.includes('data:')&&!b.style.backgroundImage.includes('blob:'))b.style.backgroundImage=`linear-gradient(120deg,${e.target.value}99,#111d31)`}});
 // Rich-text controls and per-image crop actions for mod uploads.
-document.addEventListener('click',e=>{
- const preview=e.target.closest('[data-preview]');if(preview){openMod(preview.dataset.preview);return;}const fmt=e.target.closest('[data-format]');if(fmt){e.preventDefault();$('#descEditor').focus();const cmd=fmt.dataset.format;if(cmd==='foreColor')document.execCommand('foreColor',false,$('#descColor').value);else if(cmd==='fontSize')document.execCommand('fontSize',false,$('#descSize').value);else document.execCommand(cmd,false,null);return}if(e.target.closest('#descSize'))return;const shot=e.target.closest('[data-shot-crop]');if(shot){const i=+shot.dataset.shotCrop,file=window.shotFiles?.[i];if(!file)return;cropImageFile(file,960,540,'Crop screenshot '+(i+1),data=>{window.croppedShots[i]=data;$('#shotPreview'+i).src=data;const n=window.croppedShots.filter(Boolean).length;$('#shotN').textContent=window.shotFiles.length+' screenshots selected · cropping is optional'});return}},true);
+document.addEventListener('click',e=>{const fmt=e.target.closest('[data-format]');if(fmt){e.preventDefault();$('#descEditor').focus();const cmd=fmt.dataset.format;if(cmd==='foreColor')document.execCommand('foreColor',false,$('#descColor').value);else if(cmd==='fontSize')document.execCommand('fontSize',false,$('#descSize').value);else document.execCommand(cmd,false,null);return}if(e.target.closest('#descSize'))return;const shot=e.target.closest('[data-shot-crop]');if(shot){const i=+shot.dataset.shotCrop,file=window.shotFiles?.[i];if(!file)return;cropImageFile(file,960,540,'Crop screenshot '+(i+1),data=>{window.croppedShots[i]=data;$('#shotPreview'+i).src=data;const n=window.croppedShots.filter(Boolean).length;$('#shotN').textContent=window.shotFiles.length+' screenshots selected · cropping is optional'});return}},true);
 $('#descSize').addEventListener('change',()=>{ $('#descEditor').focus();document.execCommand('fontSize',false,$('#descSize').value) });
 document.addEventListener('keydown',e=>{if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)){e.preventDefault();$('#q').focus()}});
 render();
