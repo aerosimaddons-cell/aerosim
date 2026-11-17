@@ -364,6 +364,7 @@ async function cleanupLarge(paths){try{const t=await authToken();const seen=new 
 const largeSessions={};
 const LARGE_SESSIONS_KEY='aerosimLargeSessions_v2';
 function persistLargeSessions(){try{localStorage.setItem(LARGE_SESSIONS_KEY,JSON.stringify(largeSessions))}catch(e){console.warn('Could not persist upload progress',e)}}
+function clearLargeSessions(modId){const prefix=String(modId)+'|';for(const key of Object.keys(largeSessions)){if(key.startsWith(prefix))delete largeSessions[key]}persistLargeSessions()}
 (function restoreLargeSessions(){try{const saved=JSON.parse(localStorage.getItem(LARGE_SESSIONS_KEY)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved)){for(const [k,v] of Object.entries(saved)){if(v&&typeof v==='object'&&typeof v.uploadId==='string'&&Array.isArray(v.parts))largeSessions[k]={uploadId:v.uploadId,parts:v.parts.filter(p=>p&&Number.isInteger(Number(p.partNumber))&&typeof p.etag==='string').map(p=>({partNumber:Number(p.partNumber),etag:p.etag})),...(typeof v.url==='string'?{url:v.url}:{})}}}}catch(e){console.warn('Could not restore upload progress',e)}})();
 async function uploadLarge(blob,name,modId,kind,label,progress,_retried){
  const clean=cleanFileName(name),n=Math.ceil(blob.size/LARGE_PART_BYTES),btn=document.querySelector('#form button[type="submit"]');
