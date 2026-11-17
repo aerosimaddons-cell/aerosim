@@ -1123,5 +1123,18 @@ const _hdrOwner=hdr;hdr=function(){_hdrOwner();ownerRefreshButton()};setTimeout(
  d.addEventListener('click',e=>{if(publishingMod&&(e.target===d||e.target.closest('[data-close]'))){e.stopImmediatePropagation();e.preventDefault();toast('Upload in progress, please wait')}},true);
 })();
 </script>
+
+<script>
+// Reliable mod-card opening: keep hover effects separate from actual click navigation.
+document.addEventListener('click', function(e) {
+  const card = e.target.closest && e.target.closest('.card[data-id]');
+  if (!card) return;
+  if (e.target.closest('button, a, [data-u], input, select, textarea')) return;
+  e.preventDefault();
+  e.stopPropagation();
+  if (typeof closeAll === 'function') closeAll();
+  if (typeof openMod === 'function') openMod(card.dataset.id);
+}, true);
+</script>
 </body>
 </html>
