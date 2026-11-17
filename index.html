@@ -318,7 +318,7 @@ const SEED=[];const _OLD_SEED=[
 ];
 /* Shared cloud storage: Supabase is the source of truth for accounts and addons. */
 const SUPABASE_URL='https://mqczfatgxuhrhrkniulf.supabase.co';
-const SUPABASE_KEY='sb_publishable_IPnPyVMST_8R-5Rqi2EnnQ_Hae6zwty';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xY3pmYXRneHVocmhya25pdWxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ3MzYyMTIsImV4cCI6MjExMDMxMjIxMn0.lA5TfgH5bgxtUozwW_wnlSOh32xTp1mAyS80TJ4Yy5s';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
 });
@@ -326,7 +326,7 @@ let cloudUser=null,cloudProfile=null;
 const publicUrl=path=>path?sb.storage.from('aerosim-mods').getPublicUrl(path).data.publicUrl:'';
 /* Large-file routing: files up to 40 MB are stored in Supabase Storage. Bigger files are sent through the AEROSIM large-file Worker
    (it keeps the storage token private) and the stored path becomes that Worker's download URL, which is external. */
-const LARGE_FILE_BYTES=40*1024*1024,MAX_LARGE_BYTES=1024*1024*1024,LARGE_PART_BYTES=50*1024*1024; /* must match PART_BYTES in the Worker */
+const LARGE_FILE_BYTES=40*1024*1024,MAX_LARGE_BYTES=1024*1024*1024,LARGE_PART_BYTES=10*1024*1024; /* must match PART_BYTES in the Worker */
 const LARGE_API='https://aerosim-large-files.aerosim-addons.workers.dev';
 const isExternal=p=>/^https?:\/\//i.test(String(p||''));
 function fileUrl(p){return p?(isExternal(p)?p:publicUrl(p)):''}
@@ -489,7 +489,10 @@ async function loadSharedFeedback(){
 
 // Keep the auth callback synchronous; restore profile data after Supabase finishes its auth event.
 sb.auth.onAuthStateChange((event,session)=>{
- if(event==='PASSWORD_RECOVERY'){RECOVERY_MODE=true;TAB='reset';authForm();const resetDialog=$('#dAcc');if(resetDialog&&!resetDialog.open)resetDialog.showModal();}
+ if(event==='PASSWORD_RECOVERY'){
+  RECOVERY_MODE=true;TAB='reset';authForm();
+  const resetDialog=$('#dAcc');if(resetDialog&&!resetDialog.open)resetDialog.showModal();
+ }
  const authUser=session?.user||null;
  cloudUser=authUser;
  cloudProfile=profileFallback(authUser);
@@ -554,11 +557,11 @@ const bytes=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).joi
 async function hashPw(pw,salt){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);return bytes(await crypto.subtle.deriveBits({name:'PBKDF2',salt:new TextEncoder().encode(salt),iterations:150000,hash:'SHA-256'},k,256))}
 const mailOn=()=>!!(MAIL.serviceId&&MAIL.templateId&&MAIL.publicKey);
 let TAB='in',VER=null,RESET_STEP='request',RESET_EMAIL='',RECOVERY_MODE=false;
-function openAcc(edit){const d=$('#dAcc');if(edit&&me())accForm();else{TAB='in';RECOVERY_MODE=false;authForm()}if(!d.open)d.showModal()}
+function openAcc(edit){const d=$('#dAcc');if(edit&&me())accForm();else authForm();if(!d.open)d.showModal()}
 function authForm(){
  if(RECOVERY_MODE){$('#dAcc').innerHTML=`<div class="dh"><h2>Choose a new password</h2><button class="x" data-close aria-label="Close">&times;</button></div><form class="db" id="recoverF"><label>New password<input type="password" name="pw" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters"></label><p class="note" id="recoverE" role="alert" style="color:#ff8a8a;min-height:1.4em"></p><button class="btn warn" type="submit">Save new password</button></form>`;return;}
- const up=TAB==='up',reset=TAB==='reset';
- $('#dAcc').innerHTML=`<div class="dh"><h2>${reset?'Reset password':up?'Create an account':'Sign in'}</h2><button class="x" data-close aria-label="Close">&times;</button></div><form class="db" id="authF"><label>Email address<input type="email" name="email" required autocomplete="email" placeholder="you@example.com"></label>${reset?'':`<label>Password<input type="password" name="pw" required minlength="8" autocomplete="${up?'new-password':'current-password'}" placeholder="at least 8 characters"></label>`}${up?`<label>Username<input name="username" required maxlength="20" autocomplete="username" placeholder="lowercase, 3 to 20"></label><label>Display name<input name="name" required minlength="2" maxlength="30"></label><label>Gmail address<input type="email" name="email" required autocomplete="email" placeholder="you@gmail.com"></label><div class="search" style="padding:5px;margin-bottom:14px"><input name="code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6-digit code" aria-label="Verification code" style="background:none;border:0;margin:0;padding:6px 10px;outline:0"><button type="button" class="btn alt" data-sendcode>Send code</button></div>`:''}<p class="note" id="authE" role="alert" style="color:#ff8a8a;min-height:1.4em"></p><button class="btn warn" type="submit">${reset?'Send reset link':up?'Create account':'Sign in'}</button><p class="note" style="margin-top:14px">${reset||up?'Remembered it?':'New here?'} <a href="#" data-tab="${reset||up?'in':'up'}" style="color:var(--ac)">${reset||up?'Sign in':'Create an account'}</a></p>${!reset?'<p class="note" style="margin-top:12px;text-align:center"><a href="#" data-reset style="display:inline-block;color:var(--ac);font-weight:800;text-decoration:underline;padding:10px 16px;background:rgba(80,160,255,.12);border:1px solid var(--ac);border-radius:10px">Forgot password?</a></p>':''}</form>`;
+ const up=TAB==='up',reset=TAB==='reset',verifying=reset&&RESET_STEP==='verify';
+ $('#dAcc').innerHTML=`<div class="dh"><h2>${reset?'Reset password':up?'Create an account':'Sign in'}</h2><button class="x" data-close aria-label="Close">&times;</button></div><form class="db" id="authF"><label>Email address<input type="email" name="email" required autocomplete="email" placeholder="you@example.com" value="${reset&&verifying?esc(RESET_EMAIL):''}" ${verifying?'readonly':''}></label>${reset?(verifying?`<label>6-digit reset code<input name="resetCode" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required autocomplete="one-time-code" placeholder="Enter the code from your email"></label><label>New password<input name="newPassword" type="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters"></label>`:''):`<label>Password<input type="password" name="pw" required minlength="8" autocomplete="${up?'new-password':'current-password'}" placeholder="at least 8 characters"></label>`}${up?`<label>Username<input name="username" required maxlength="20" autocomplete="username" placeholder="lowercase, 3 to 20"></label><label>Display name<input name="name" required minlength="2" maxlength="30"></label><div class="search" style="padding:5px;margin-bottom:14px"><input name="code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6-digit code" aria-label="Verification code" style="background:none;border:0;margin:0;padding:6px 10px;outline:0"><button type="button" class="btn alt" data-sendcode>Send code</button></div>`:''}<p class="note" id="authE" role="alert" style="color:#ff8a8a;min-height:1.4em"></p><button class="btn warn" type="submit">${reset?(verifying?'Verify code & save password':'Send reset link'):up?'Create account':'Sign in'}</button><p class="note" style="margin-top:14px">${reset?'Remembered it?':up?'Already have an account?':'New here?'} <a href="#" data-tab="${reset||up?'in':'up'}" style="color:var(--ac)">${reset||up?'Sign in':'Create an account'}</a></p>${!reset?'<p class="note"><a href="#" data-reset style="color:var(--ac)">Forgot password?</a></p>':''}</form>`;
 }
 
 async function sendCode(f){
@@ -581,7 +584,7 @@ function accForm(){
  $('#dAcc').innerHTML=`<div class="dh"><h2>Make your profile yours</h2><button class="x" data-close aria-label="Close">&times;</button></div><form class="db" id="accF">
  <div class="profile-preview" id="profilePreview"><div class="preview-banner" id="previewBanner" style="${banner?`background-image:url('${banner}')`:''}"></div><div class="preview-person"><img id="previewPfp" src="${fallback}" alt="Profile picture preview"><div><h3 id="previewName">${esc(u.name)}</h3><small>@${esc(u.username)}</small></div></div><div class="preview-caption">This is how your public profile header will look.</div></div>
  <div class="profile-edit-grid"><label>Display name<input name="name" required minlength="2" maxlength="30" value="${esc(u.name)}" placeholder="How people will see you"></label><label>Profile picture<input type="file" name="pfp" accept="image/*"><span class="note">Square image works best · 256 × 256</span></label><label>Banner image<input type="file" name="banner" accept="image/*"><span class="note">Wide image works best · 1200 × 300</span></label><label>Username<input value="${esc(u.username)}" disabled><span class="note">Your unique account handle</span></label></div>
- ${u.email?`<p class="note">Gmail verified: ${esc(u.email)}</p>`:''}<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px"><button class="btn warn" type="submit">Save profile</button><span class="note">Changes appear in the preview instantly.</span></div><hr style="border:0;border-top:1px solid var(--line);margin:24px 0"><h3 style="font-size:24px;margin-bottom:10px">Change password</h3><p class="note" style="margin:0 0 12px">Confirm your current password before setting a new one.</p><label>Current password<input type="password" name="currentPassword" autocomplete="current-password" minlength="8"></label><label>New password<input type="password" name="newPassword" autocomplete="new-password" minlength="8"></label><label>Confirm new password<input type="password" name="confirmPassword" autocomplete="new-password" minlength="8"></label><p class="note" id="passwordE" role="alert" style="color:#ff8a8a;min-height:1.4em"></p><button class="btn alt" type="submit">Save profile and password</button></form>`;
+ ${u.email?`<p class="note">Gmail verified: ${esc(u.email)}</p>`:''}<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px"><button class="btn warn" type="submit">Save profile</button><span class="note">Changes appear in the preview instantly.</span></div></form>`;
 }
 
 let editingModId=null,draftModId=null;
@@ -595,11 +598,24 @@ document.addEventListener('submit',async e=>{
   const d=new FormData(f),err=$('#authE'),pw=d.get('pw');
   const email=(d.get('email')||'').trim().toLowerCase();
   if(TAB==='reset'){
-   const r=await fetch(SUPABASE_URL+'/functions/v1/aerosim-password-reset',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},body:JSON.stringify({action:'request',email})});
-   const j=await r.json().catch(()=>({}));if(!r.ok)return err.textContent=j.error||'Could not send a reset link. Try again later.';
-   err.style.color='#8ee0a4';err.textContent='If an account exists for that email, a password-reset link has been sent. Check your inbox.';return;
-  }
-  if(TAB==='in'){
+    if(RESET_STEP==='request'){
+     const r=await fetch(SUPABASE_URL+'/functions/v1/aerosim-password-reset',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},body:JSON.stringify({action:'request',email})});
+     const j=await r.json().catch(()=>({}));
+     if(!r.ok)return err.textContent=j.error||'Could not send a reset code. Try again later.';
+     const msg=$('#authE');msg.style.color='#8ee0a4';msg.textContent='If an account exists for that email, a password-reset link has been sent. Check your inbox.';
+     return;
+    }
+    const code=d.get('resetCode'),newPassword=d.get('newPassword');
+    const r=await fetch(SUPABASE_URL+'/functions/v1/aerosim-password-reset',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},body:JSON.stringify({action:'verify',email:RESET_EMAIL,code})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.token_hash)return err.textContent=j.error||'That code could not be verified.';
+    const verified=await sb.auth.verifyOtp({token_hash:j.token_hash,type:'recovery'});
+    if(verified.error)return err.textContent=verified.error.message;
+    const updated=await sb.auth.updateUser({password:newPassword});
+    if(updated.error)return err.textContent=updated.error.message;
+    RESET_STEP='request';RESET_EMAIL='';TAB='in';$('#dAcc').close();await loadCloudProfile();hdr();render();return toast('Password updated successfully.');
+   }
+   if(TAB==='in'){
    const {error}=await sb.auth.signInWithPassword({email,password:pw});
    if(error)return err.textContent=error.message;
    await loadCloudProfile();$('#dAcc').close();hdr();render();return toast('Signed in as '+(me()?.name||email));
@@ -623,28 +639,16 @@ document.addEventListener('submit',async e=>{
   err.textContent='Your 6-digit code was verified and your account was created. If Supabase asks for another email link, its separate email-confirmation setting still needs to be turned off.';
   return;
  }
- if(f.id==='recoverF'){
-   const {error}=await sb.auth.updateUser({password:f.elements.pw.value});if(error)return $('#recoverE').textContent=error.message;
-   RECOVERY_MODE=false;RESET_STEP='request';RESET_EMAIL='';TAB='in';try{history.replaceState({},document.title,location.pathname)}catch(_){}
+  if(f.id==='recoverF'){
+   const {error}=await sb.auth.updateUser({password:f.elements.pw.value});
+   if(error)return $('#recoverE').textContent=error.message;
+   RECOVERY_MODE=false;RESET_STEP='request';RESET_EMAIL='';TAB='in';
+   try{history.replaceState({},document.title,location.pathname)}catch(_){}
    $('#dAcc').close();await loadCloudProfile();hdr();render();return toast('Password updated successfully.');
   }
-  if(f.id==='accF'){
+ if(f.id==='accF'){
   const d=new FormData(f),u=me();if(!u)return;
-  const currentPw=String(d.get('currentPassword')||''),newPw=String(d.get('newPassword')||''),confirmPw=String(d.get('confirmPassword')||''),pwErr=$('#passwordE');
-  if(currentPw||newPw||confirmPw){
-   if(!currentPw||!newPw||!confirmPw){if(pwErr)pwErr.textContent='Fill in all three password fields.';return}
-   if(newPw.length<8){if(pwErr)pwErr.textContent='New password must be at least 8 characters.';return}
-   if(newPw!==confirmPw){if(pwErr)pwErr.textContent='The new passwords do not match.';return}
-   const email=cloudUser?.email;if(!email){if(pwErr)pwErr.textContent='Your account email could not be verified. Please sign in again.';return}
-   const reauth=await sb.auth.signInWithPassword({email,password:currentPw});
-   if(reauth.error){if(pwErr)pwErr.textContent='Current password is incorrect.';return}
-   const changed=await sb.auth.updateUser({password:newPw});
-   if(changed.error){if(pwErr)pwErr.textContent=changed.error.message;return}
-   f.elements.currentPassword.value='';f.elements.newPassword.value='';f.elements.confirmPassword.value='';
-   if(pwErr)pwErr.textContent='Password updated successfully.';
-  }
-  u.name=d.get('name').trim();const updates={display_name:u.name};if(window.pendingPfp){const b=await dataUrlBlob(window.pendingPfp),path=cloudUser.id+'/profile/avatar.jpg';await uploadCloud(path,b,b.type||'image/jpeg');updates.avatar_path=path;u.pfp=publicUrl(path)}if(window.pendingBanner){const b=await dataUrlBlob(window.pendingBanner),path=cloudUser.id+'/profile/banner.jpg';await uploadCloud(path,b,b.type||'image/jpeg');updates.banner_path=path;u.banner=publicUrl(path)}window.pendingPfp=null;window.pendingBanner=null;const {error}=await sb.from('profiles').update(updates).eq('id',cloudUser.id);if(error)return toast(error.message);D.users[u.username]={...u};save();$('#dAcc').close();hdr();render();toast('Saved');if($('#dProf').open)profile(u.username);return
- }
+  u.name=d.get('name').trim();const updates={display_name:u.name};if(window.pendingPfp){const b=await dataUrlBlob(window.pendingPfp),path=`${cloudUser.id}/profile/avatar.jpg`;await uploadCloud(path,b,b.type||'image/jpeg');updates.avatar_path=path;u.pfp=publicUrl(path)}if(window.pendingBanner){const b=await dataUrlBlob(window.pendingBanner),path=`${cloudUser.id}/profile/banner.jpg`;await uploadCloud(path,b,b.type||'image/jpeg');updates.banner_path=path;u.banner=publicUrl(path)}window.pendingPfp=null;window.pendingBanner=null;const {error}=await sb.from('profiles').update(updates).eq('id',cloudUser.id);if(error)return toast(error.message);D.users[u.username]={...u};save();$('#dAcc').close();hdr();render();toast('Saved');if($('#dProf').open)profile(u.username);return}
  if(f.id==='form'){
   const d=new FormData(f),err=$('#err'),u=me();if(!u)return;
   const title=d.get('title').trim(),desc=safeRich($('#descEditor').innerHTML),shots=window.croppedShots||[],pc=d.get('pc'),an=d.get('and'),hp=pc&&pc.size,ha=an&&an.size,existingMod=editingModId?mods.find(x=>x.id===editingModId):null,E=[];
@@ -681,21 +685,25 @@ document.addEventListener('submit',async e=>{
   m.imgs=shots.slice(0,8);m.img=m.imgs[0];
   if(hp){m.files.pc={name:pc.name,size:pc.size,blob:pc};}if(ha){m.files.and={name:an.name,size:an.size,blob:an};}
   m.plat=[...(wantPC?['PC']:[]),...(wantAnd?['Android']:[])];
+  let savedMod;
   try{
-   await store.put(m);
-   // Re-read the published list from Supabase after publishing. This keeps the UI
-   // synchronized with the database and prevents a failed/partial local state
-   // from making the existing mods appear to disappear.
-   mods=await store.all();
-   await loadSharedFeedback();
-    clearLargeSessions(m.id);
+   savedMod=await store.put(m);
  }catch(uploadError){
-   console.error(uploadError);
+   console.error('AEROSIM mod save failed:',uploadError);
    publishingMod=false;window.onbeforeunload=null;
    if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=(existingMod?'Retry saving changes':'Retry publishing')+' (progress is kept)';}
-   err.textContent='Upload did not finish: '+(uploadError&&uploadError.message||'unknown error')+' Your progress is saved. Press the button once to continue where it stopped.';
+   err.textContent='Save did not finish: '+(uploadError&&uploadError.message||'unknown error')+' Your progress is saved. Press the button once to continue where it stopped.';
    return;
  }
+ // The database has confirmed the save. Update the local catalogue immediately;
+ // a later refresh/network error must never turn a successful save into a failure.
+ mods=[savedMod,...mods.filter(x=>x.id!==savedMod.id)];
+ try{
+   mods=await store.all();
+ }catch(refreshError){
+   console.warn('AEROSIM saved successfully; catalogue refresh will retry later:',refreshError);
+ }
+ await loadSharedFeedback();
  // After publishing, clear any old browse filters so the newly uploaded mod
  // is immediately visible in the main catalogue (not only in Trending).
  if(typeof resetBrowseFilters==='function')resetBrowseFilters();else{cat='All';plat='all';q='';favOnly=false;window.pf='all';sort='new';if($('#q'))$('#q').value='';if($('#plat'))$('#plat').value='all';if($('#browseFilter'))$('#browseFilter').value='new|all';if($('#favT'))$('#favT').setAttribute('aria-pressed','false');if(typeof chips==='function')chips();}
