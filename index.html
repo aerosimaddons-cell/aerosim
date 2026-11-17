@@ -326,7 +326,7 @@ let cloudUser=null,cloudProfile=null;
 const publicUrl=path=>path?sb.storage.from('aerosim-mods').getPublicUrl(path).data.publicUrl:'';
 /* Large-file routing: files up to 40 MB are stored in Supabase Storage. Bigger files are sent through the AEROSIM large-file Worker
    (it keeps the storage token private) and the stored path becomes that Worker's download URL, which is external. */
-const LARGE_FILE_BYTES=40*1024*1024,MAX_LARGE_BYTES=1024*1024*1024,LARGE_PART_BYTES=50*1024*1024; /* must match PART_BYTES in the Worker */
+const LARGE_FILE_BYTES=40*1024*1024,MAX_LARGE_BYTES=1024*1024*1024,LARGE_PART_BYTES=10*1024*1024; /* must match PART_BYTES in the Worker */
 const LARGE_API='https://aerosim-large-files-test.aerosim-addons.workers.dev';
 const isExternal=p=>/^https?:\/\//i.test(String(p||''));
 function fileUrl(p){return p?(isExternal(p)?p:publicUrl(p)):''}
@@ -347,11 +347,11 @@ async function largeCall(path,params,body,token){
 /* One chunk. There is NO overall timeout: it is only aborted if no bytes move for 45 seconds, so slow connections still finish. */
 function sendLargePart(url,token,chunk,onLoaded){return new Promise((res,rej)=>{
  const x=new XMLHttpRequest();let last=Date.now();
- const wd=setInterval(()=>{if(Date.now()-last>45000)x.abort()},3000),end=()=>clearInterval(wd);
+ const wd=setInterval(()=>{if(Date.now()-last>180000)x.abort()},3000),end=()=>clearInterval(wd);
  const net=m=>{end();const e=new Error(m);e.network=true;rej(e)};
  x.open('POST',url);x.setRequestHeader('Authorization','Bearer '+token);x.setRequestHeader('apikey',SUPABASE_KEY);x.setRequestHeader('Content-Type','application/octet-stream');
  x.upload.onprogress=e=>{last=Date.now();if(e.lengthComputable)onLoaded(e.loaded)};
- x.upload.onload=()=>{last=Date.now()+60000}; /* whole chunk sent, give the server time to answer */
+ x.upload.onload=()=>{last=Date.now()+180000}; /* whole chunk sent, give the server time to answer */
  x.onerror=()=>net('Network interrupted while sending a chunk.');
  x.onabort=()=>net('Chunk stalled and was restarted.');
  x.onload=()=>{end();let j={};try{j=JSON.parse(x.responseText)}catch(_){}
@@ -362,12 +362,12 @@ async function cleanupLarge(paths){try{const t=await authToken();const seen=new 
 /* Upload sessions survive a failed publish: if chunk 9 fails, pressing Publish again continues at chunk 9 (not chunk 1),
    and a file that finished uploading is never uploaded twice. Keyed by mod id + file identity. */
 const largeSessions={};
-const LARGE_SESSIONS_KEY='aerosimLargeSessions_v1';
+const LARGE_SESSIONS_KEY='aerosimLargeSessions_v2';
 function persistLargeSessions(){try{localStorage.setItem(LARGE_SESSIONS_KEY,JSON.stringify(largeSessions))}catch(e){console.warn('Could not persist upload progress',e)}}
 (function restoreLargeSessions(){try{const saved=JSON.parse(localStorage.getItem(LARGE_SESSIONS_KEY)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved)){for(const [k,v] of Object.entries(saved)){if(v&&typeof v==='object'&&typeof v.uploadId==='string'&&Array.isArray(v.parts))largeSessions[k]={uploadId:v.uploadId,parts:v.parts.filter(p=>p&&Number.isInteger(Number(p.partNumber))&&typeof p.etag==='string').map(p=>({partNumber:Number(p.partNumber),etag:p.etag})),...(typeof v.url==='string'?{url:v.url}:{})}}}}catch(e){console.warn('Could not restore upload progress',e)}})();
 async function uploadLarge(blob,name,modId,kind,label,progress,_retried){
  const clean=cleanFileName(name),n=Math.ceil(blob.size/LARGE_PART_BYTES),btn=document.querySelector('#form button[type="submit"]');
- const sig=[modId,kind,clean,blob.size,blob.lastModified||0].join('|');
+ const sig=[modId,kind,clean,blob.size,blob.lastModified||0,LARGE_PART_BYTES].join('|');
  const partSize=i=>i<n?LARGE_PART_BYTES:blob.size-(n-1)*LARGE_PART_BYTES; /* i is 1-based */
  const prog=progress||{total:blob.size,done:0,last:0};
  let S=largeSessions[sig],counted=0;
