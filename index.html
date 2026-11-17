@@ -578,7 +578,7 @@ function accForm(){
  $('#dAcc').innerHTML=`<div class="dh"><h2>Make your profile yours</h2><button class="x" data-close aria-label="Close">&times;</button></div><form class="db" id="accF">
  <div class="profile-preview" id="profilePreview"><div class="preview-banner" id="previewBanner" style="${banner?`background-image:url('${banner}')`:''}"></div><div class="preview-person"><img id="previewPfp" src="${fallback}" alt="Profile picture preview"><div><h3 id="previewName">${esc(u.name)}</h3><small>@${esc(u.username)}</small></div></div><div class="preview-caption">This is how your public profile header will look.</div></div>
  <div class="profile-edit-grid"><label>Display name<input name="name" required minlength="2" maxlength="30" value="${esc(u.name)}" placeholder="How people will see you"></label><label>Profile picture<input type="file" name="pfp" accept="image/*"><span class="note">Square image works best · 256 × 256</span></label><label>Banner image<input type="file" name="banner" accept="image/*"><span class="note">Wide image works best · 1200 × 300</span></label><label>Username<input value="${esc(u.username)}" disabled><span class="note">Your unique account handle</span></label></div>
- ${u.email?`<p class="note">Gmail verified: ${esc(u.email)}</p>`:''}<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px"><button class="btn warn" type="submit">Save profile</button><span class="note">Changes appear in the preview instantly.</span></div></form>`;
+ ${u.email?`<p class="note">Gmail verified: ${esc(u.email)}</p>`:''}<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px"><button class="btn warn" type="submit">Save profile</button><span class="note">Changes appear in the preview instantly.</span></div><hr style="border:0;border-top:1px solid var(--line);margin:24px 0"><h3 style="font-size:24px;margin-bottom:10px">Change password</h3><p class="note" style="margin:0 0 12px">Confirm your current password before setting a new one.</p><label>Current password<input type="password" name="currentPassword" autocomplete="current-password" minlength="8"></label><label>New password<input type="password" name="newPassword" autocomplete="new-password" minlength="8"></label><label>Confirm new password<input type="password" name="confirmPassword" autocomplete="new-password" minlength="8"></label><p class="note" id="passwordE" role="alert" style="color:#ff8a8a;min-height:1.4em"></p><button class="btn alt" type="submit">Save profile and password</button></form>`;
 }
 
 let editingModId=null,draftModId=null;
@@ -617,7 +617,21 @@ document.addEventListener('submit',async e=>{
  }
  if(f.id==='accF'){
   const d=new FormData(f),u=me();if(!u)return;
-  u.name=d.get('name').trim();const updates={display_name:u.name};if(window.pendingPfp){const b=await dataUrlBlob(window.pendingPfp),path=`${cloudUser.id}/profile/avatar.jpg`;await uploadCloud(path,b,b.type||'image/jpeg');updates.avatar_path=path;u.pfp=publicUrl(path)}if(window.pendingBanner){const b=await dataUrlBlob(window.pendingBanner),path=`${cloudUser.id}/profile/banner.jpg`;await uploadCloud(path,b,b.type||'image/jpeg');updates.banner_path=path;u.banner=publicUrl(path)}window.pendingPfp=null;window.pendingBanner=null;const {error}=await sb.from('profiles').update(updates).eq('id',cloudUser.id);if(error)return toast(error.message);D.users[u.username]={...u};save();$('#dAcc').close();hdr();render();toast('Saved');if($('#dProf').open)profile(u.username);return}
+  const currentPw=String(d.get('currentPassword')||''),newPw=String(d.get('newPassword')||''),confirmPw=String(d.get('confirmPassword')||''),pwErr=$('#passwordE');
+  if(currentPw||newPw||confirmPw){
+   if(!currentPw||!newPw||!confirmPw){if(pwErr)pwErr.textContent='Fill in all three password fields.';return}
+   if(newPw.length<8){if(pwErr)pwErr.textContent='New password must be at least 8 characters.';return}
+   if(newPw!==confirmPw){if(pwErr)pwErr.textContent='The new passwords do not match.';return}
+   const email=cloudUser?.email;if(!email){if(pwErr)pwErr.textContent='Your account email could not be verified. Please sign in again.';return}
+   const reauth=await sb.auth.signInWithPassword({email,password:currentPw});
+   if(reauth.error){if(pwErr)pwErr.textContent='Current password is incorrect.';return}
+   const changed=await sb.auth.updateUser({password:newPw});
+   if(changed.error){if(pwErr)pwErr.textContent=changed.error.message;return}
+   f.elements.currentPassword.value='';f.elements.newPassword.value='';f.elements.confirmPassword.value='';
+   if(pwErr)pwErr.textContent='Password updated successfully.';
+  }
+  u.name=d.get('name').trim();const updates={display_name:u.name};if(window.pendingPfp){const b=await dataUrlBlob(window.pendingPfp),path=cloudUser.id+'/profile/avatar.jpg';await uploadCloud(path,b,b.type||'image/jpeg');updates.avatar_path=path;u.pfp=publicUrl(path)}if(window.pendingBanner){const b=await dataUrlBlob(window.pendingBanner),path=cloudUser.id+'/profile/banner.jpg';await uploadCloud(path,b,b.type||'image/jpeg');updates.banner_path=path;u.banner=publicUrl(path)}window.pendingPfp=null;window.pendingBanner=null;const {error}=await sb.from('profiles').update(updates).eq('id',cloudUser.id);if(error)return toast(error.message);D.users[u.username]={...u};save();$('#dAcc').close();hdr();render();toast('Saved');if($('#dProf').open)profile(u.username);return
+ }
  if(f.id==='form'){
   const d=new FormData(f),err=$('#err'),u=me();if(!u)return;
   const title=d.get('title').trim(),desc=safeRich($('#descEditor').innerHTML),shots=window.croppedShots||[],pc=d.get('pc'),an=d.get('and'),hp=pc&&pc.size,ha=an&&an.size,existingMod=editingModId?mods.find(x=>x.id===editingModId):null,E=[];
