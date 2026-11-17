@@ -219,6 +219,65 @@ html[data-theme=day] dialog .db textarea::placeholder { color: #64748b; opacity:
 
 
 .rtbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:7px 0 0;padding:8px;background:#091321;border:1px solid #ffffff20;border-radius:10px}.rtbar button,.rtbar select{background:#172338;border:1px solid #ffffff22;border-radius:7px;padding:6px 10px;cursor:pointer}.rtbar button:hover{border-color:var(--ac)}.rtcolor{display:flex;align-items:center;gap:5px;margin:0!important;font-size:12px!important}.rtcolor input{width:30px!important;height:28px;padding:0!important;margin:0!important}.rich-editor{min-height:116px;margin-top:0;padding:12px 13px;background:#091321;border:1px solid #ffffff20;border-radius:0 0 11px 11px;outline:none;white-space:pre-wrap;overflow-wrap:anywhere}.rich-editor:empty:before{content:attr(data-placeholder);color:#71839e;pointer-events:none}.rich-editor:focus{border-color:var(--ac)}.shot-tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:10px}.shot-tool{background:#091321;border:1px solid #ffffff20;border-radius:10px;padding:7px}.shot-tool img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;display:block;margin-bottom:6px}.shot-tool button{width:100%;padding:6px;border:1px solid #ffffff25;border-radius:7px;background:#172338;cursor:pointer}.crop-dialog{width:min(620px,94vw)}.crop-stage{height:min(55vh,390px);min-height:220px;background:#050a12;overflow:hidden;position:relative;border-radius:12px;touch-action:none;margin-bottom:15px}.crop-stage img{position:absolute;max-width:none;max-height:none;user-select:none;-webkit-user-drag:none;cursor:grab}.crop-stage img:active{cursor:grabbing}.crop-dialog input[type=range]{width:100%}
+
+/* AEROSIM TRENDING — premium community chart */
+.trend-pro{position:relative;margin:0 0 30px;padding:26px;border:1px solid #6dbdff24;border-radius:24px;background:radial-gradient(ellipse at 8% 0%,#1a4e7938,transparent 42%),linear-gradient(135deg,#0c1728,#0a1120 68%,#111a2b);box-shadow:0 22px 65px #0005;overflow:hidden}
+.trend-pro:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.12;background-image:linear-gradient(#9acfff12 1px,transparent 1px),linear-gradient(90deg,#9acfff12 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(90deg,#000,transparent 90%)}
+.trend-head{position:relative;display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:22px}
+.trend-kicker{display:block;color:#69c5ff;font-size:10px;font-weight:900;letter-spacing:2.8px;margin-bottom:8px}
+.trend-head h2{font-size:clamp(30px,4vw,46px);line-height:1.02;letter-spacing:-1.5px;margin:0}
+.trend-head h2 em{font-style:normal;color:#74caff;text-shadow:0 0 24px #38aaff55}
+.trend-head p{margin:8px 0 0;color:#9eb3ce;font-size:14px}
+.trend-live{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #46dca64a;border-radius:999px;background:#16b97812;color:#8cf2c4;font-size:10px;font-weight:900;letter-spacing:1.3px;white-space:nowrap}
+.trend-live i{width:7px;height:7px;border-radius:50%;background:#39e69b;box-shadow:0 0 12px #39e69b;animation:trendPulse 1.8s infinite}
+@keyframes trendPulse{50%{opacity:.35;box-shadow:0 0 2px #39e69b}}
+.trend-layout{position:relative;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr);gap:16px}
+.trend-feature{position:relative;isolation:isolate;min-height:440px;border:1px solid #9ad7ff35;border-radius:19px;overflow:hidden;cursor:pointer;background:#101c2c;transition:transform .25s,border-color .25s,box-shadow .25s}
+.trend-feature:hover{transform:translateY(-4px);border-color:#78caffaa;box-shadow:0 18px 45px #0008,0 0 25px #38aaff1c}
+.trend-feature-image,.trend-feature-shade{position:absolute;inset:0}
+.trend-feature-image .th{height:100%;width:100%;aspect-ratio:auto}
+.trend-feature-image img{width:100%;height:100%;object-fit:cover}
+.trend-feature-shade{z-index:0;background:linear-gradient(180deg,#06101a66 0%,transparent 30%,#06101ad9 70%,#06101af7 100%),linear-gradient(90deg,#06101a55,transparent)}
+.trend-feature-top{position:absolute;z-index:1;top:16px;left:16px;right:16px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.trend-crown,.trend-score{padding:8px 11px;border-radius:8px;font-size:10px;font-weight:900;letter-spacing:1px;backdrop-filter:blur(12px)}
+.trend-crown{background:linear-gradient(100deg,#ffdb83,#f7a93c);color:#271800}
+.trend-score{background:#071321bd;border:1px solid #ffffff2b;color:#fff}
+.trend-feature-copy{position:absolute;z-index:1;left:24px;right:24px;bottom:22px}
+.trend-category{display:inline-block;color:#8bd5ff;font-size:10px;font-weight:900;letter-spacing:1.7px;text-transform:uppercase}
+.trend-feature-copy h3{font-size:clamp(28px,3.4vw,43px);line-height:1.02;letter-spacing:-.8px;margin:8px 0}
+.trend-feature-copy>p{color:#b8c9dc;font-size:13px;margin:0 0 18px}
+.trend-feature-copy>p b{color:#fff}
+.trend-metrics{display:flex;gap:24px;flex-wrap:wrap;padding:13px 0;border-top:1px solid #ffffff24;border-bottom:1px solid #ffffff24}
+.trend-metrics span{display:flex;flex-direction:column;gap:3px}
+.trend-metrics b{font-size:17px;color:#fff;font-variant-numeric:tabular-nums}
+.trend-metrics small{font-size:9px;color:#9eb3ce;font-weight:800;letter-spacing:1px}
+.trend-explore{display:flex;justify-content:space-between;align-items:center;margin-top:15px;color:#85d1ff;font-size:10px;font-weight:900;letter-spacing:1.8px}
+.trend-explore b{font-size:19px;transition:transform .2s}
+.trend-feature:hover .trend-explore b{transform:translate(3px,-3px)}
+.trend-ranking{padding:17px;border:1px solid #ffffff17;border-radius:19px;background:linear-gradient(160deg,#ffffff08,#ffffff02);display:flex;flex-direction:column;min-width:0}
+.trend-ranking-head{display:flex;justify-content:space-between;align-items:end;gap:10px;padding:0 2px 12px;border-bottom:1px solid #ffffff18}
+.trend-ranking-head div{display:flex;flex-direction:column;gap:4px}
+.trend-ranking-head div span{color:#69c5ff;font-size:9px;font-weight:900;letter-spacing:2px}
+.trend-ranking-head div b{font-size:19px}
+.trend-ranking-head>small{color:#7e95b1;font-size:8px;font-weight:800;letter-spacing:.8px;text-align:right}
+.trend-row{display:grid;grid-template-columns:35px 78px minmax(0,1fr) 18px;align-items:center;gap:12px;min-height:78px;padding:10px 2px;border-bottom:1px solid #ffffff12;cursor:pointer;transition:background .2s,padding .2s}
+.trend-row:last-child{border-bottom:0}
+.trend-row:hover{background:#69c5ff0c;padding-left:8px;padding-right:8px;border-radius:10px}
+.trend-rank{font-size:21px;font-weight:950;font-variant-numeric:tabular-nums;color:#6e91b5}
+.trend-row:nth-of-type(2) .trend-rank{color:#f3cf77}
+.trend-thumb{height:57px;border-radius:9px;overflow:hidden;background:#101e30}
+.trend-thumb .th{height:100%;aspect-ratio:auto}
+.trend-thumb img{width:100%;height:100%;object-fit:cover}
+.trend-info{min-width:0;display:flex;flex-direction:column;gap:3px}
+.trend-info h4{font-size:13px;line-height:1.2;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trend-info>span{font-size:10px;color:#9fb3cc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trend-info>small{font-size:10px;color:#71c6ff;font-weight:700}
+.trend-arrow{color:#6b9fc7;font-size:17px;transition:transform .2s}
+.trend-row:hover .trend-arrow{transform:translate(2px,-2px);color:#9bdcff}
+.trend-foot{position:relative;display:flex;justify-content:space-between;gap:12px;margin-top:18px;padding-top:13px;border-top:1px solid #ffffff16;color:#6f8aa8;font-size:9px;font-weight:900;letter-spacing:1.5px}
+@media(max-width:900px){.trend-layout{grid-template-columns:1fr}.trend-feature{min-height:380px}.trend-ranking{min-height:0}}
+@media(max-width:560px){.trend-pro{padding:16px;border-radius:17px}.trend-head{align-items:flex-start}.trend-live{font-size:8px;padding:7px}.trend-feature{min-height:350px}.trend-feature-copy{left:17px;right:17px;bottom:17px}.trend-metrics{gap:14px}.trend-metrics b{font-size:15px}.trend-row{grid-template-columns:28px 66px minmax(0,1fr) 14px;gap:9px}.trend-thumb{height:51px}.trend-ranking{padding:12px}.trend-foot{font-size:8px;letter-spacing:.7px}}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/dist/umd/supabase.min.js"></script>
 </head>
@@ -863,7 +922,8 @@ const rate=id=>{const n=Object.keys(D.rate[id]||{}).length;return `<b>&#9733; ${
 function cardX(m){const au=user(m.author);return `<article class="card c2" tabindex="0" data-id="${m.id}"><div class="th">${thumb(m)}<button class="fav ${isFav(m.id)?'on':''}" data-fav="${m.id}" aria-label="Favorite" aria-pressed="${isFav(m.id)}">&#9829;</button></div><div class="cb"><div class="tags"><span>${esc(m.cat)}</span><span class="pr ${m.price>0?'paid':''}">${m.price>0?'$'+m.price.toFixed(2):'Free'}</span>${m.tag?`<span>${esc(m.tag)}</span>`:''}</div><h3>${esc(m.title)}</h3><p class="ds">${esc(plainDesc(m.desc).replace(/\n/g,' '))}</p><div class="au"><img src="${ava(au||{name:m.author})}" alt=""><b class="who" ${au?`data-u="${esc(m.author)}"`:''}>${esc(nm(m.author))}</b><span class="pl">${m.plat.map(p=>`<i>${p}</i>`).join('')}</span></div><div class="rt"><span>${rate(m.id)}</span><span>&#8681; ${m.dl}</span></div><div class="ft"><span>${sz(m)}</span><span>${ago(m.date)}</span></div></div></article>`}
 function trendHTML(){
  const tr=[...mods].sort((a,b)=>(b.dl+avg(b.id)*5)-(a.dl+avg(a.id)*5)||b.date-a.date).slice(0,6),f=tr[0],r=tr.slice(1);
- return `<div class="thead"><div><small>Most downloaded and best rated right now</small><h2>Trending this week</h2></div></div><div class="tgrid"><article class="card tf" tabindex="0" data-id="${f.id}"><span class="hot">#1 Hottest</span><div class="th">${thumb(f)}</div><div class="ov"><h3>${esc(f.title)}</h3><p>${esc(f.cat)} &middot; by ${esc(nm(f.author))} &middot; ${f.dl} downloads</p></div></article><div class="tl">${r.map((m,i)=>`<article class="card tr" tabindex="0" data-id="${m.id}"><span class="rk">${i+2}</span><div class="th">${thumb(m)}</div><div><h4>${esc(m.title)}</h4><small class="ct">${esc(m.cat)}</small><small>${esc(nm(m.author))}</small></div><span class="dn">&#8681; ${m.dl}</span></article>`).join('')||'<div class="empty">More mods will rank here as they are uploaded.</div>'}</div></div>`}
+ if(!f)return `<section class="trend-pro"><div class="trend-head"><div><span class="trend-kicker">AEROSIM COMMUNITY CHARTS</span><h2>Trending this week</h2><p>The addons everyone is checking out.</p></div><span class="trend-live"><i></i> COMMUNITY PICKS</span></div><div class="empty">Trending addons will appear here as the community uploads and discovers mods.</div></section>`;
+ return `<section class="trend-pro"><div class="trend-head"><div><span class="trend-kicker">AEROSIM COMMUNITY CHARTS</span><h2>Trending <em>this week</em></h2><p>The addons making the biggest impression in the community.</p></div><span class="trend-live"><i></i> COMMUNITY PICKS</span></div><div class="trend-layout"><article class="trend-feature" tabindex="0" data-id="${f.id}"><div class="trend-feature-image">${thumb(f)}</div><div class="trend-feature-shade"></div><div class="trend-feature-top"><span class="trend-crown">✦ &nbsp; #1 FEATURED ADDON</span><span class="trend-score">★ ${avg(f.id).toFixed(1)} RATING</span></div><div class="trend-feature-copy"><span class="trend-category">${esc(f.cat)}</span><h3>${esc(f.title)}</h3><p>Created by <b>${esc(nm(f.author))}</b></p><div class="trend-metrics"><span><b>⇩ ${Number(f.dl)||0}</b><small>DOWNLOADS</small></span><span><b>★ ${avg(f.id).toFixed(1)}</b><small>COMMUNITY RATING</small></span><span><b>#1</b><small>TOP RANKED</small></span></div><span class="trend-explore">EXPLORE ADDON <b>↗</b></span></div></article><div class="trend-ranking"><div class="trend-ranking-head"><div><span>THE CHART</span><b>Top 6 addons</b></div><small>RANKED BY COMMUNITY ACTIVITY</small></div>${r.map((m,i)=>`<article class="trend-row" tabindex="0" data-id="${m.id}"><span class="trend-rank">${String(i+2).padStart(2,'0')}</span><div class="trend-thumb">${thumb(m)}</div><div class="trend-info"><h4>${esc(m.title)}</h4><span>${esc(m.cat)} · by ${esc(nm(m.author))}</span><small>★ ${avg(m.id).toFixed(1)} &nbsp;·&nbsp; ⇩ ${Number(m.dl)||0} downloads</small></div><span class="trend-arrow">↗</span></article>`).join('')||'<div class="empty">More addons will appear here soon.</div>'}</div></div><div class="trend-foot"><span>✦ &nbsp; MADE FOR THE FLIGHT SIM COMMUNITY</span><span>DISCOVER. DOWNLOAD. FLY.</span></div></section>`}
 const TK=document.body.appendChild(Object.assign(document.createElement('div'),{id:'tick',className:'off',innerHTML:'<i></i><span></span>'}));
 let ti=0;function tick(){const ev=[];mods.filter(m=>!m.demo).forEach(m=>ev.push([m.date,`<b>${esc(nm(m.author))}</b> published ${esc(m.title)}`]));Object.entries(D.com).forEach(([id,l])=>{const m=mods.find(x=>x.id===id);if(m)l.forEach(c=>ev.push([c.t,`<b>${esc(nm(c.u))}</b> commented on ${esc(m.title)}`]))});
  if(!ev.length){TK.classList.add('off');return}ev.sort((a,b)=>b[0]-a[0]);const e=ev[ti++%Math.min(ev.length,6)];TK.querySelector('span').innerHTML=e[1];TK.classList.remove('off')}
