@@ -598,7 +598,7 @@ document.addEventListener('submit',async e=>{
   const d=new FormData(f),err=$('#authE'),pw=d.get('pw');
   const email=(d.get('email')||'').trim().toLowerCase();
   if(TAB==='reset'){
-    const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+    const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:'https://aerosim-large-files-test.aerosim-addons.workers.dev/site'});
     if(error)return err.textContent=error.message;
     err.style.color='#8ee0a4';err.textContent='If an account exists for that email, a password reset link has been sent.';
     return;
