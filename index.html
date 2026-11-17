@@ -655,21 +655,25 @@ document.addEventListener('submit',async e=>{
   m.imgs=shots.slice(0,8);m.img=m.imgs[0];
   if(hp){m.files.pc={name:pc.name,size:pc.size,blob:pc};}if(ha){m.files.and={name:an.name,size:an.size,blob:an};}
   m.plat=[...(wantPC?['PC']:[]),...(wantAnd?['Android']:[])];
+  let savedMod;
   try{
-   await store.put(m);
-   // Re-read the published list from Supabase after publishing. This keeps the UI
-   // synchronized with the database and prevents a failed/partial local state
-   // from making the existing mods appear to disappear.
-   mods=await store.all();
-   await loadSharedFeedback();
-    // Keep upload-session metadata; cleanup is optional and must not block publishing.
+   savedMod=await store.put(m);
  }catch(uploadError){
-   console.error(uploadError);
+   console.error('AEROSIM mod save failed:',uploadError);
    publishingMod=false;window.onbeforeunload=null;
    if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=(existingMod?'Retry saving changes':'Retry publishing')+' (progress is kept)';}
-   err.textContent='Upload did not finish: '+(uploadError&&uploadError.message||'unknown error')+' Your progress is saved. Press the button once to continue where it stopped.';
+   err.textContent='Save did not finish: '+(uploadError&&uploadError.message||'unknown error')+' Your progress is saved. Press the button once to continue where it stopped.';
    return;
  }
+ // The database has confirmed the save. Update the local catalogue immediately;
+ // a later refresh/network error must never turn a successful save into a failure.
+ mods=[savedMod,...mods.filter(x=>x.id!==savedMod.id)];
+ try{
+   mods=await store.all();
+ }catch(refreshError){
+   console.warn('AEROSIM saved successfully; catalogue refresh will retry later:',refreshError);
+ }
+ await loadSharedFeedback();
  // After publishing, clear any old browse filters so the newly uploaded mod
  // is immediately visible in the main catalogue (not only in Trending).
  if(typeof resetBrowseFilters==='function')resetBrowseFilters();else{cat='All';plat='all';q='';favOnly=false;window.pf='all';sort='new';if($('#q'))$('#q').value='';if($('#plat'))$('#plat').value='all';if($('#browseFilter'))$('#browseFilter').value='new|all';if($('#favT'))$('#favT').setAttribute('aria-pressed','false');if(typeof chips==='function')chips();}
