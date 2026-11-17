@@ -332,6 +332,26 @@ html[data-theme=day] dialog .db textarea::placeholder { color: #64748b; opacity:
 @media(max-width:900px){.tv2-stage{grid-template-columns:1fr}.tv2-feature{min-height:430px}.tv2-board{min-height:0}}
 @media(max-width:560px){.trend-v2{padding:15px;border-radius:17px}.tv2-head{align-items:flex-start;flex-direction:column;gap:12px;padding-bottom:17px}.tv2-eyebrow{font-size:9px;letter-spacing:2.8px;margin-bottom:10px}.tv2-head h2{font-size:clamp(39px,11vw,54px);letter-spacing:-1.6px}.tv2-head p{font-size:15px;margin-top:10px}.tv2-head-right{align-items:flex-start;flex-direction:row;flex-wrap:wrap}.tv2-status{font-size:8px}.tv2-feature{min-height:390px}.tv2-feature-top{top:11px;left:11px;right:11px}.tv2-winner,.tv2-rating{padding:7px;font-size:8px}.tv2-feature-bottom{bottom:16px;left:16px;right:16px}.tv2-stats{gap:13px}.tv2-stats b{font-size:14px}.tv2-stats small{font-size:7px}.tv2-board{padding:12px}.tv2-row{grid-template-columns:24px 61px minmax(0,1fr) 13px;gap:8px;min-height:70px}.tv2-thumb{height:47px}.tv2-bottom{font-size:7px;letter-spacing:.6px}}
 @media(prefers-reduced-motion:reduce){.trend-v2 *{animation:none!important;transition:none!important}}
+
+/* COMMUNITY RADAR — taller, brighter animated headline */
+.tv2-head{align-items:center;min-height:190px;padding:18px 2px 30px;margin-bottom:30px}
+.tv2-head>div:first-child{min-width:0}
+.tv2-eyebrow{padding:10px 16px;margin-bottom:18px;border-radius:7px;border-color:#7ce8ff88;background:linear-gradient(100deg,#087dbb55,#672dba38,#087dbb22);color:#c5f5ff;font-size:13px;letter-spacing:5px;box-shadow:0 0 22px #35caff28;animation:radarLabelFlash 2.8s ease-in-out infinite}
+.tv2-eyebrow:before{width:9px;height:9px;background:#fff;box-shadow:0 0 8px #fff,0 0 20px #32d7ff;animation:radarDotFlash 1.3s ease-in-out infinite}
+.tv2-head h2{display:block;margin:0;font-size:clamp(64px,8.4vw,108px);line-height:1.08;letter-spacing:-3.5px;font-weight:1000;transform:scaleY(1.12);transform-origin:left center;text-shadow:0 7px 34px #38bfff55,0 0 70px #6c49ff24}
+.tv2-head h2 i{display:inline-block;padding-right:.08em;background:linear-gradient(100deg,#4deaff 0%,#8b7bff 28%,#ff65d5 52%,#ffe56a 76%,#4dffe0 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px #55cfff88);animation:radarColorRush 3.2s linear infinite,radarGlowBeat 1.8s ease-in-out infinite}
+.tv2-head p{margin-top:22px;color:#d0e8ff;font-size:clamp(17px,1.9vw,21px);line-height:1.55;letter-spacing:.25px;text-shadow:0 0 18px #42aaff35}
+@keyframes radarColorRush{0%{background-position:0% 50%;filter:hue-rotate(0deg) drop-shadow(0 0 12px #55cfff88)}50%{background-position:100% 50%;filter:hue-rotate(35deg) drop-shadow(0 0 22px #c45cffaa)}100%{background-position:200% 50%;filter:hue-rotate(0deg) drop-shadow(0 0 12px #55cfff88)}}
+@keyframes radarGlowBeat{0%,100%{text-shadow:0 0 8px #54dfff66}50%{text-shadow:0 0 24px #a65cffcc,0 0 44px #42dfff77}}
+@keyframes radarLabelFlash{0%,100%{border-color:#64dfff66;box-shadow:0 0 12px #35caff20;color:#c5f5ff}50%{border-color:#d16cffbb;box-shadow:0 0 26px #a64cff66;color:#fff}}
+@keyframes radarDotFlash{0%,100%{background:#fff;box-shadow:0 0 8px #fff,0 0 20px #32d7ff}50%{background:#ffb5f3;box-shadow:0 0 10px #ffb5f3,0 0 25px #d64cff}}
+@media(max-width:640px){
+ .tv2-head{min-height:0;padding:10px 0 23px;gap:18px}
+ .tv2-head h2{font-size:clamp(48px,12vw,72px);letter-spacing:-2px;line-height:1.08;transform:scaleY(1.08)}
+ .tv2-eyebrow{font-size:10px;letter-spacing:3px;padding:8px 10px}
+ .tv2-head p{margin-top:16px;font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){.tv2-eyebrow,.tv2-eyebrow:before,.tv2-head h2 i{animation:none!important}}
 </style>
 </head>
 <body>
