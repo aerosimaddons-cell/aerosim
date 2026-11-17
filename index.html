@@ -487,7 +487,8 @@ async function loadSharedFeedback(){
 }
 
 // Keep the auth callback synchronous; restore profile data after Supabase finishes its auth event.
-sb.auth.onAuthStateChange((_event,session)=>{
+sb.auth.onAuthStateChange((event,session)=>{
+ if(event==='PASSWORD_RECOVERY'){RECOVERY_MODE=true;TAB='reset';authForm();const resetDialog=$('#dAcc');if(resetDialog&&!resetDialog.open)resetDialog.showModal();}
  const authUser=session?.user||null;
  cloudUser=authUser;
  cloudProfile=profileFallback(authUser);
@@ -551,11 +552,12 @@ function profile(un){
 const bytes=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
 async function hashPw(pw,salt){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);return bytes(await crypto.subtle.deriveBits({name:'PBKDF2',salt:new TextEncoder().encode(salt),iterations:150000,hash:'SHA-256'},k,256))}
 const mailOn=()=>!!(MAIL.serviceId&&MAIL.templateId&&MAIL.publicKey);
-let TAB='in',VER=null;
+let TAB='in',VER=null,RESET_STEP='request',RESET_EMAIL='',RECOVERY_MODE=false;
 function openAcc(edit){const d=$('#dAcc');if(edit&&me())accForm();else authForm();if(!d.open)d.showModal()}
 function authForm(){
- const up=TAB==='up';
- $('#dAcc').innerHTML=`<div class="dh"><h2>${up?'Create an account':'Sign in'}</h2><button class="x" data-close aria-label="Close">&times;</button></div><form class="db" id="authF">${up?`<label>Username<input name="username" required maxlength="20" autocomplete="username" placeholder="lowercase, 3 to 20"></label>`:`<label>Email address<input type="email" name="email" required autocomplete="email" placeholder="you@example.com"></label>`}<label>Password<input type="password" name="pw" required minlength="8" autocomplete="${up?'new-password':'current-password'}" placeholder="at least 8 characters"></label>${up?`<label>Display name<input name="name" required minlength="2" maxlength="30"></label><label>Gmail address<input type="email" name="email" required autocomplete="email" placeholder="you@gmail.com"></label><div class="search" style="padding:5px;margin-bottom:14px"><input name="code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6-digit code" aria-label="Verification code" style="background:none;border:0;margin:0;padding:6px 10px;outline:0"><button type="button" class="btn alt" data-sendcode>Send code</button></div>`:''}<p class="note" id="authE" role="alert" style="color:#ff8a8a;min-height:1.4em"></p><button class="btn warn" type="submit">${up?'Create account':'Sign in'}</button><p class="note" style="margin-top:14px">${up?'Already have an account?':'New here?'} <a href="#" data-tab="${up?'in':'up'}" style="color:var(--ac)">${up?'Sign in':'Create an account'}</a></p></form>`;
+ if(RECOVERY_MODE){$('#dAcc').innerHTML=`<div class="dh"><h2>Choose a new password</h2><button class="x" data-close aria-label="Close">&times;</button></div><form class="db" id="recoverF"><label>New password<input type="password" name="pw" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters"></label><p class="note" id="recoverE" role="alert" style="color:#ff8a8a;min-height:1.4em"></p><button class="btn warn" type="submit">Save new password</button></form>`;return;}
+ const up=TAB==='up',reset=TAB==='reset';
+ $('#dAcc').innerHTML=`<div class="dh"><h2>${reset?'Reset password':up?'Create an account':'Sign in'}</h2><button class="x" data-close aria-label="Close">&times;</button></div><form class="db" id="authF"><label>Email address<input type="email" name="email" required autocomplete="email" placeholder="you@example.com"></label>${reset?'':`<label>Password<input type="password" name="pw" required minlength="8" autocomplete="${up?'new-password':'current-password'}" placeholder="at least 8 characters"></label>`}${up?`<label>Username<input name="username" required maxlength="20" autocomplete="username" placeholder="lowercase, 3 to 20"></label><label>Display name<input name="name" required minlength="2" maxlength="30"></label><label>Gmail address<input type="email" name="email" required autocomplete="email" placeholder="you@gmail.com"></label><div class="search" style="padding:5px;margin-bottom:14px"><input name="code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6-digit code" aria-label="Verification code" style="background:none;border:0;margin:0;padding:6px 10px;outline:0"><button type="button" class="btn alt" data-sendcode>Send code</button></div>`:''}<p class="note" id="authE" role="alert" style="color:#ff8a8a;min-height:1.4em"></p><button class="btn warn" type="submit">${reset?'Send reset link':up?'Create account':'Sign in'}</button><p class="note" style="margin-top:14px">${reset||up?'Remembered it?':'New here?'} <a href="#" data-tab="${reset||up?'in':'up'}" style="color:var(--ac)">${reset||up?'Sign in':'Create an account'}</a></p>${!up&&!reset?'<p class="note"><a href="#" data-reset style="color:var(--ac)">Forgot password?</a></p>':''}</form>`;
 }
 
 async function sendCode(f){
@@ -591,6 +593,11 @@ document.addEventListener('submit',async e=>{
  if(f.id==='authF'){
   const d=new FormData(f),err=$('#authE'),pw=d.get('pw');
   const email=(d.get('email')||'').trim().toLowerCase();
+  if(TAB==='reset'){
+   const r=await fetch(SUPABASE_URL+'/functions/v1/aerosim-password-reset',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},body:JSON.stringify({action:'request',email})});
+   const j=await r.json().catch(()=>({}));if(!r.ok)return err.textContent=j.error||'Could not send a reset link. Try again later.';
+   err.style.color='#8ee0a4';err.textContent='If an account exists for that email, a password-reset link has been sent. Check your inbox.';return;
+  }
   if(TAB==='in'){
    const {error}=await sb.auth.signInWithPassword({email,password:pw});
    if(error)return err.textContent=error.message;
@@ -615,7 +622,12 @@ document.addEventListener('submit',async e=>{
   err.textContent='Your 6-digit code was verified and your account was created. If Supabase asks for another email link, its separate email-confirmation setting still needs to be turned off.';
   return;
  }
- if(f.id==='accF'){
+ if(f.id==='recoverF'){
+   const {error}=await sb.auth.updateUser({password:f.elements.pw.value});if(error)return $('#recoverE').textContent=error.message;
+   RECOVERY_MODE=false;RESET_STEP='request';RESET_EMAIL='';TAB='in';try{history.replaceState({},document.title,location.pathname)}catch(_){}
+   $('#dAcc').close();await loadCloudProfile();hdr();render();return toast('Password updated successfully.');
+  }
+  if(f.id==='accF'){
   const d=new FormData(f),u=me();if(!u)return;
   const currentPw=String(d.get('currentPassword')||''),newPw=String(d.get('newPassword')||''),confirmPw=String(d.get('confirmPassword')||''),pwErr=$('#passwordE');
   if(currentPw||newPw||confirmPw){
@@ -718,6 +730,7 @@ document.addEventListener('click',async e=>{
  if(c('#upBtn')||c('#navUp')){e.preventDefault();return openUp()}
  if(c('[data-auth]'))return openAcc();
  if(c('[data-sendcode]'))return sendCode($('#authF'));
+  if(c('[data-reset]')){e.preventDefault();TAB='reset';RESET_STEP='request';RESET_EMAIL='';return authForm()}
  const tb=c('[data-tab]');if(tb){e.preventDefault();TAB=tb.dataset.tab;return authForm()}
  if(c('[data-editp]'))return openAcc(1);
  if(c('[data-out]')){await sb.auth.signOut();cloudUser=null;cloudProfile=null;save();closeAll();hdr();render();return toast('Signed out')}
