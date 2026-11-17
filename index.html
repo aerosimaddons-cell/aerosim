@@ -402,7 +402,7 @@ async function uploadLarge(blob,name,modId,kind,label,progress,_retried){
   }
   btn&&(btn.textContent='Finalizing '+label+'…');
   let j;
-  for(let t=1;;t++){try{j=await largeCall('/complete',{...params,uploadId:S.uploadId,size:blob.size},{parts:S.parts},await authToken());break}catch(e){if(e.code==='NO_SESSION'||t>=5||(e.status&&e.status<500&&e.status!==429))throw e;await sleep(1500*t)}}
+  for(let t=1;;t++){try{j=await largeCall('/complete',{...params,uploadId:S.uploadId,size:blob.size,parts:n},{parts:S.parts},await authToken());break}catch(e){if(e.code==='NO_SESSION'||t>=5||(e.status&&e.status<500&&e.status!==429))throw e;await sleep(1500*t)}}
   S.url=j.url;persistLargeSessions();return j.url;
  }catch(e){
   if(e.code==='NO_SESSION'&&!_retried){ /* server lost this upload (expired or cleaned up): restart this one file once */
