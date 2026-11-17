@@ -662,7 +662,7 @@ document.addEventListener('submit',async e=>{
    // from making the existing mods appear to disappear.
    mods=await store.all();
    await loadSharedFeedback();
-    clearLargeSessions(m.id);
+    // Keep upload-session metadata; cleanup is optional and must not block publishing.
  }catch(uploadError){
    console.error(uploadError);
    publishingMod=false;window.onbeforeunload=null;
