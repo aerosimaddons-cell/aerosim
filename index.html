@@ -1136,5 +1136,27 @@ document.addEventListener('click', function(e) {
   if (typeof openMod === 'function') openMod(card.dataset.id);
 }, true);
 </script>
+
+<script>
+// Community Radar cards are separate from .card listings, so wire their click + keyboard actions explicitly.
+(function(){
+  function activateRadarItem(item){
+    if(!item || !item.dataset.id) return;
+    if(typeof closeAll==='function') closeAll();
+    if(typeof openMod==='function') openMod(item.dataset.id);
+  }
+  document.addEventListener('click',function(e){
+    const item=e.target.closest && e.target.closest('.tv2-feature[data-id], .tv2-row[data-id]');
+    if(!item) return;
+    e.preventDefault(); e.stopPropagation(); activateRadarItem(item);
+  },true);
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Enter' && e.key!==' ') return;
+    const item=e.target.closest && e.target.closest('.tv2-feature[data-id], .tv2-row[data-id]');
+    if(!item) return;
+    e.preventDefault(); e.stopPropagation(); activateRadarItem(item);
+  },true);
+})();
+</script>
 </body>
 </html>
