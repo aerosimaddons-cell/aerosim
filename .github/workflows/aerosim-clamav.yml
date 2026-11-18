@@ -29,7 +29,7 @@ jobs:
           sudo systemctl stop clamav-freshclam || true
           sudo freshclam
           clamscan --version
-          printf '%s' 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*' > /tmp/aerosim-eicar-test.com
+          printf '%s' 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*' > /tmp/aerosim-eicar-test.com
           set +e
           clamscan --no-summary /tmp/aerosim-eicar-test.com > /tmp/aerosim-eicar-test.log 2>&1
           eicar_rc=$?
