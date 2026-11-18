@@ -113,7 +113,7 @@ jobs:
                 scan_rc=$?
                 set -e
 
-                if grep -Eqi 'Heuristics\.(Limits\.Exceeded|Encrypted|Broken)' "$log"; then
+                if grep -Eqi 'Heuristics\.(Limits\.Exceeded|Encrypted)|Broken\.Executable' "$log"; then
                   verdict="review"
                   found="$(grep -E 'FOUND' "$log" | sed 's/^.*: //' | head -n 10 | jq -R . | jq -s .)"
                   detections="$(jq -cn --argjson old "$detections" --argjson new "$found" '$old + $new | .[:30]')"
