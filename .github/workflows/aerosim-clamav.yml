@@ -1,6 +1,9 @@
 name: AEROSIM ClamAV file scanner
 
 on:
+  push:
+    paths:
+      - ".github/workflows/aerosim-clamav.yml"
   workflow_dispatch:
   schedule:
     - cron: "*/5 * * * *"
