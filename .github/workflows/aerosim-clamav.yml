@@ -63,7 +63,7 @@ jobs:
 
             mod_id="$(jq -r '.job.id // empty' <<< "$response")"
             if [[ -z "$mod_id" ]]; then
-              echo "No pending mod scans."
+              echo "No pending mod scans; queue poll completed."
               break
             fi
 
