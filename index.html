@@ -281,8 +281,40 @@ html[data-theme=day] dialog .db textarea::placeholder { color: #64748b; opacity:
 
 .logo-word{display:block;font-size:30px;font-weight:800;letter-spacing:-1.2px;line-height:1;color:var(--tx)}@media(max-width:700px){.logo-word{font-size:25px}}
 
-/* Antivirus scan progress overlay */
-.scan-overlay{position:fixed;inset:auto 22px 22px auto;z-index:99999;display:none;align-items:flex-end;justify-content:flex-end;padding:0;background:transparent;backdrop-filter:none;pointer-events:none}.scan-overlay.on{display:flex}.scan-panel{pointer-events:auto;width:min(370px,calc(100vw - 32px));padding:18px 20px;border:1px solid rgba(96,165,250,.42);border-radius:18px;background:rgba(11,20,36,.97);color:#eef4ff;box-shadow:0 14px 48px #0009;text-align:left;display:grid;grid-template-columns:42px minmax(0,1fr);column-gap:13px;align-items:center}.scan-panel .scan-orbit{grid-column:1;grid-row:1 / span 3;width:38px;height:38px;margin:0;border-width:3px}.scan-panel .scan-orbit.done:after,.scan-panel .scan-orbit.warn:after{font-size:23px;line-height:32px}.scan-panel .scan-title{grid-column:2;font-size:16px;margin:0 0 3px}.scan-panel .scan-copy{grid-column:2;font-size:12px;line-height:1.4;margin:0}.scan-panel .scan-track{grid-column:1 / -1;width:100%;margin:13px 0 7px}.scan-panel .scan-status{grid-column:1 / -1;font-size:10px}.scan-orbit{width:76px;height:76px;margin:0 auto 20px;border:4px solid #203650;border-top-color:#39a8ff;border-right-color:#39a8ff;border-radius:50%;animation:aeroScanSpin 1s linear infinite}.scan-orbit.done{animation:none;border-color:#22c55e;position:relative}.scan-orbit.done:after{content:'✓';font-size:42px;color:#22c55e;line-height:68px}.scan-orbit.warn{animation:none;border-color:#f59e0b;position:relative}.scan-orbit.warn:after{content:'!';font-size:42px;color:#f59e0b;line-height:68px}@keyframes aeroScanSpin{to{transform:rotate(360deg)}}.scan-title{font-size:24px;font-weight:800;margin:0 0 8px}.scan-copy{color:#a9bad1;line-height:1.55;margin:0 0 18px}.scan-track{height:7px;border-radius:9px;background:#1b2a3e;overflow:hidden;margin:20px 0 10px}.scan-track span{display:block;width:38%;height:100%;border-radius:9px;background:linear-gradient(90deg,#168cff,#64c5ff);animation:aeroScanProgress 1.5s ease-in-out infinite alternate}.scan-track.done span{width:100%;animation:none;background:#22c55e}.scan-track.warn span{width:100%;animation:none;background:#f59e0b}.scan-status{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#80bfff;font-weight:700}.scan-status.done{color:#4ade80}.scan-status.warn{color:#fbbf24}@keyframes aeroScanProgress{from{transform:translateX(-20%)}to{transform:translateX(170%)}}
+/* AEROSIM upload + antivirus progress window: centered floating card, never dims or blurs the page */
+#aeroav{position:fixed;inset:0;margin:auto;width:min(460px,calc(100vw - 28px));height:fit-content;padding:0;border:0;background:transparent;color:inherit;overflow:visible;z-index:2147483000;pointer-events:none}
+#aeroav[hidden]{display:none}
+#aeroav::backdrop{display:none}
+.aeroav-card{pointer-events:auto;text-align:center;padding:26px 26px 22px;border-radius:20px;background:#0b1422;color:#eef4ff;border:1px solid rgba(96,165,250,.4);box-shadow:0 22px 70px rgba(0,0,0,.6);animation:aeroavIn .25s ease-out}
+@keyframes aeroavIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+.aeroav-ico{position:relative;width:68px;height:68px;margin:0 auto 14px;display:grid;place-items:center;color:#4aa8ff}
+.aeroav-ico svg{position:relative;display:none}
+.aeroav-ring{position:absolute;inset:0;border-radius:50%;border:4px solid rgba(74,168,255,.2);border-top-color:#4aa8ff;animation:aeroavSpin 1s linear infinite}
+@keyframes aeroavSpin{to{transform:rotate(360deg)}}
+.aeroav-t{margin:0 0 6px;font-size:21px;line-height:1.2;font-family:inherit}
+.aeroav-d{margin:0 0 16px;font-size:14px;line-height:1.45;color:#a9bad1;min-height:1.45em;overflow-wrap:anywhere}
+.aeroav-bar{height:7px;border-radius:7px;background:#1b2a3e;overflow:hidden}
+.aeroav-bar span{display:block;width:35%;height:100%;border-radius:7px;background:linear-gradient(90deg,#168cff,#64c5ff);animation:aeroavBar 1.4s ease-in-out infinite alternate}
+.aeroav-bar.det span{animation:none;transition:width .3s ease}
+@keyframes aeroavBar{from{transform:translateX(-30%)}to{transform:translateX(190%)}}
+.aeroav-pct{height:18px;margin-top:6px;font-size:12px;font-weight:700;letter-spacing:.08em;color:#80bfff}
+.aeroav-steps{list-style:none;margin:12px 0 0;padding:14px 0 0;border-top:1px solid rgba(255,255,255,.1);display:grid;gap:9px;text-align:left}
+.aeroav-steps li{display:flex;align-items:center;gap:10px;font-size:14px;color:#6f819b}
+.aeroav-steps li i{width:16px;height:16px;border-radius:50%;border:2px solid #34465f;flex:none;position:relative}
+.aeroav-steps li.active{color:#eef4ff}.aeroav-steps li.active i{border-color:#4aa8ff;border-top-color:transparent;animation:aeroavSpin .9s linear infinite}
+.aeroav-steps li.done{color:#9fe0b4}.aeroav-steps li.done i{border-color:#22c55e;background:#22c55e}
+.aeroav-steps li.done i:after{content:"";position:absolute;left:3px;top:0;width:4px;height:8px;border:solid #0b1422;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.aeroav-steps li.bad{color:#f3c27a}.aeroav-steps li.bad i{border-color:#f59e0b;background:#f59e0b}
+#aeroav[data-state=up] .aeroav-s,#aeroav[data-state=scan] .aeroav-s{display:block}
+#aeroav[data-state=clean] .aeroav-ico{color:#22c55e}#aeroav[data-state=clean] .aeroav-c{display:block}
+#aeroav[data-state=infected] .aeroav-ico{color:#ef4444}#aeroav[data-state=infected] .aeroav-w{display:block}
+#aeroav[data-state=review] .aeroav-ico{color:#f59e0b}#aeroav[data-state=review] .aeroav-w{display:block}
+#aeroav[data-state=clean] .aeroav-ring,#aeroav[data-state=infected] .aeroav-ring,#aeroav[data-state=review] .aeroav-ring{animation:none;border-color:currentColor;opacity:.35}
+#aeroav[data-state=clean] .aeroav-bar span,#aeroav[data-state=infected] .aeroav-bar span,#aeroav[data-state=review] .aeroav-bar span{animation:none;width:100%!important;transform:none}
+#aeroav[data-state=clean] .aeroav-bar span{background:#22c55e}
+#aeroav[data-state=infected] .aeroav-bar span{background:#ef4444}
+#aeroav[data-state=review] .aeroav-bar span{background:#f59e0b}
+@media(prefers-reduced-motion:reduce){.aeroav-ring,.aeroav-bar span,.aeroav-card,.aeroav-steps li.active i{animation:none!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/dist/umd/supabase.min.js"></script>
 <script>if(!window.supabase){document.write('<script src="https://unpkg.com/@supabase/supabase-js@2.57.0/dist/umd/supabase.min.js"><\\/script>')}</script>
@@ -551,7 +583,34 @@ async function uploadLarge(blob,name,modId,kind,label,progress,_retried){
  }
 }
 const cleanFileName=n=>String(n||'file').replace(/[^a-zA-Z0-9._-]/g,'_').slice(0,120)||'file';
-async function uploadCloud(path,body,contentType){const {error}=await sb.storage.from('aerosim-mods').upload(path,body,{upsert:true,contentType});if(error)throw error;return path}
+async function uploadCloud(path,body,contentType,label){
+ const btn=document.querySelector('#form button[type="submit"]'),name=label||'file';
+ for(let attempt=0;attempt<2;attempt++){
+  const token=await authToken(attempt===1);
+  try{await new Promise((resolve,reject)=>{
+   const x=new XMLHttpRequest(),url=SUPABASE_URL+'/storage/v1/object/aerosim-mods/'+path.split('/').map(encodeURIComponent).join('/');
+   x.open('POST',url);x.setRequestHeader('Authorization','Bearer '+token);x.setRequestHeader('apikey',SUPABASE_KEY);x.setRequestHeader('Content-Type',contentType||'application/octet-stream');x.setRequestHeader('x-upsert','true');
+   x.upload.onprogress=e=>{if(e.lengthComputable&&btn){const pct=Math.min(99,Math.floor(e.loaded/e.total*100));btn.textContent=`Uploading ${name} ${pct}%`}};
+   x.onload=()=>{if(x.status>=200&&x.status<300)resolve();else{const err=new Error((()=>{try{return JSON.parse(x.responseText).message||JSON.parse(x.responseText).error}catch(_){return 'Storage upload failed ('+x.status+').'}})());err.status=x.status;reject(err)}};
+   x.onerror=()=>reject(new Error('Network interrupted while uploading '+name+'.'));x.onabort=()=>reject(new Error('Upload cancelled while uploading '+name+'.'));x.send(body);
+  });return path}catch(e){if(e.status===401&&attempt===0)continue;throw e}
+ }
+ return path;
+}
+function avLockForm(form,locked){
+ if(!form)return;
+ if(locked){
+  form.dataset.avLocked='1';
+  form.querySelectorAll('input,select,textarea,button').forEach(el=>{if(el.type==='submit')return;if(!el.hasAttribute('data-av-was-disabled'))el.dataset.avWasDisabled=el.disabled?'1':'0';el.disabled=true});
+  const editor=form.querySelector('#descEditor');if(editor){editor.dataset.avWasEditable=editor.getAttribute('contenteditable')||'true';editor.setAttribute('contenteditable','false')}
+  const close=document.querySelector('#dUp [data-close]');if(close){close.dataset.avWasDisabled=close.disabled?'1':'0';close.disabled=true}
+ }else{
+  form.querySelectorAll('[data-av-was-disabled]').forEach(el=>{el.disabled=el.dataset.avWasDisabled==='1';delete el.dataset.avWasDisabled});
+  const editor=form.querySelector('#descEditor');if(editor&&editor.dataset.avWasEditable){editor.setAttribute('contenteditable',editor.dataset.avWasEditable);delete editor.dataset.avWasEditable}
+  const close=document.querySelector('#dUp [data-close]');if(close&&close.dataset.avWasDisabled!==undefined){close.disabled=close.dataset.avWasDisabled==='1';delete close.dataset.avWasDisabled}
+  delete form.dataset.avLocked;
+ }
+}
 async function dataUrlBlob(src){const r=await fetch(src);return await r.blob()}
 const toMod=row=>({id:row.id,title:row.title,author:row.author_username||'unknown',cat:row.category,tag:row.tag||'',desc:row.description||'',ver:row.version||'1.0',date:new Date(row.created_at).getTime(),dl:Number(row.downloads||0),plat:(row.platforms&&row.platforms.length?row.platforms:((Number(row.price||0)>1&&String(row.patreon_url||'').trim())?['Patreon']:[])),imgs:(row.screenshots||[]).map(x=>/^https?:/.test(x)?x:publicUrl(x)),img:(row.screenshots||[]).length?(/^https?:/.test(row.screenshots[0])?row.screenshots[0]:publicUrl(row.screenshots[0])):'',files:{pc:row.pc_file_path?{name:row.pc_file_name,size:Number(row.pc_file_size||0),path:row.pc_file_path,url:fileUrl(row.pc_file_path)}:null,and:row.android_file_path?{name:row.android_file_name,size:Number(row.android_file_size||0),path:row.android_file_path,url:fileUrl(row.android_file_path)}:null},price:Number(row.price||0),patreon:row.patreon_url||'',scanStatus:row.scan_status||'legacy'});
 const store={
@@ -562,9 +621,9 @@ const store={
   if(!m.id||!(/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(m.id)))m.id=crypto.randomUUID();
   const base=`${cloudUser.id}/${m.id}`,files=m.files||{};
   const screenshots=[];
-  for(let i=0;i<(m.imgs||[]).length;i++){const src=m.imgs[i];if(src&&src.startsWith('data:')){const blob=await dataUrlBlob(src),path=`${base}/screenshots/${i}.jpg`;await uploadCloud(path,blob,blob.type||'image/jpeg');screenshots.push(path)}else if(src)screenshots.push(src.startsWith('http')?src.replace(/^https:\/\/[^/]+\/storage\/v1\/object\/public\/aerosim-mods\//, ''):src)}
+  for(let i=0;i<(m.imgs||[]).length;i++){const src=m.imgs[i];if(src&&src.startsWith('data:')){const blob=await dataUrlBlob(src),path=`${base}/screenshots/${i}.jpg`;await uploadCloud(path,blob,blob.type||'image/jpeg','Screenshot '+(i+1));screenshots.push(path)}else if(src)screenshots.push(src.startsWith('http')?src.replace(/^https:\/\/[^/]+\/storage\/v1\/object\/public\/aerosim-mods\//, ''):src)}
   const fileFields={},largeProgress={total:['pc','and'].reduce((sum,k)=>sum+(files[k]?.blob&&files[k].blob.size>LARGE_FILE_BYTES?files[k].blob.size:0),0),done:0};
-  for(const [k,prefix] of [['pc','pc'],['and','android']]){const f=files[k];if(!f)continue;let path=f.path||null;if(f.blob){if(f.blob.size>LARGE_FILE_BYTES){path=await uploadLarge(f.blob,f.name,m.id,k,k==='pc'?'PC file':'Android file',largeProgress)}else{path=`${base}/${prefix}/${cleanFileName(f.name)}`;await uploadCloud(path,f.blob,f.blob.type||'application/octet-stream')}}fileFields[prefix+'_file_path']=path;fileFields[prefix+'_file_name']=f.name;fileFields[prefix+'_file_size']=f.size}
+  for(const [k,prefix] of [['pc','pc'],['and','android']]){const f=files[k];if(!f)continue;let path=f.path||null;if(f.blob){if(f.blob.size>LARGE_FILE_BYTES){path=await uploadLarge(f.blob,f.name,m.id,k,k==='pc'?'PC file':'Android file',largeProgress)}else{path=`${base}/${prefix}/${cleanFileName(f.name)}`;await uploadCloud(path,f.blob,f.blob.type||'application/octet-stream',k==='pc'?'PC file':'Android file')}}fileFields[prefix+'_file_path']=path;fileFields[prefix+'_file_name']=f.name;fileFields[prefix+'_file_size']=f.size}
   if(largeProgress.total&&largeProgress.done>=largeProgress.total){const btn=document.querySelector('#form button[type="submit"]');if(btn)btn.textContent='Uploading files 100%';}
   const row={...(m.id?{id:m.id}:{}),author_id:cloudUser.id,title:m.title,category:m.cat,tag:m.tag||'',description:m.desc||'',version:m.ver||'1.0',platforms:(m.plat||[]).filter(x=>x==='PC'||x==='Android'),screenshots, ...fileFields,price:m.price||0,patreon_url:m.patreon||'',published:true};
   const {data,error}=await sb.from('mods').upsert(row).select('*').single();if(error)throw error;return toMod(data);
@@ -660,10 +719,85 @@ function render(){
  $('#sMods').textContent=mods.length;$('#sDl').textContent=mods.reduce((a,m)=>a+m.dl,0);$('#sAu').textContent=new Set(mods.map(m=>m.author)).size;
 }
 function chips(){$('#chips').innerHTML=['All',...CATS].map(c=>`<button class="chip" aria-pressed="${c===cat}" data-c="${esc(c)}">${esc(c)}</button>`).join('');$('#catSel').innerHTML=CATS.map(c=>`<option>${esc(c)}</option>`).join('')}
-let scanOverlayTimer=null;
-function scanOverlay(status,title,copy){let el=document.getElementById('aeroScanOverlay');if(!el){el=document.createElement('div');el.id='aeroScanOverlay';el.className='scan-overlay';el.innerHTML='<section class="scan-panel" role="status" aria-live="polite"><div class="scan-orbit" id="aeroScanIcon"></div><h2 class="scan-title" id="aeroScanTitle"></h2><p class="scan-copy" id="aeroScanCopy"></p><div class="scan-track" id="aeroScanTrack"><span></span></div><div class="scan-status" id="aeroScanStatus"></div></section>';document.body.appendChild(el)}const done=status==='done',warn=status==='warn';const icon=$('#aeroScanIcon'),track=$('#aeroScanTrack'),label=$('#aeroScanStatus');icon.className='scan-orbit'+(done?' done':warn?' warn':'');track.className='scan-track'+(done?' done':warn?' warn':'');label.className='scan-status'+(done?' done':warn?' warn':'');$('#aeroScanTitle').textContent=title;$('#aeroScanCopy').textContent=copy;label.textContent=done?'SCAN PASSED':warn?'MANUAL REVIEW REQUIRED':'ANTIVIRUS SCAN IN PROGRESS';el.classList.add('on')}
-function closeScanOverlay(){const el=document.getElementById('aeroScanOverlay');if(el)el.classList.remove('on');if(scanOverlayTimer){clearInterval(scanOverlayTimer);scanOverlayTimer=null}}
-async function waitForModScan(modId){scanOverlay('loading','Checking your mod','Your upload is saved securely. ClamAV is checking the files before the mod can appear publicly.');const started=Date.now();let lastStatus='pending';while(Date.now()-started<10*60*1000){const {data,error}=await sb.from('mods').select('scan_status,published,scan_details,scan_engine').eq('id',modId).single();if(error){console.warn('Could not refresh antivirus status:',error);await new Promise(r=>setTimeout(r,5000));continue}lastStatus=data.scan_status||'pending';if(lastStatus==='clean'&&data.published){scanOverlay('done','Scan passed!','No threats were detected. Your mod is now published.');await new Promise(r=>setTimeout(r,1500));closeScanOverlay();return 'clean'}if(['infected','review','error','rejected'].includes(lastStatus)){const infected=lastStatus==='infected';scanOverlay('warn',infected?'Threat detected':'Needs manual review',infected?'The antivirus scanner flagged this upload. It will not be published.':(data.scan_details||'The file could not be cleared automatically. It has been held for owner review.'));await new Promise(r=>setTimeout(r,3500));closeScanOverlay();return lastStatus}scanOverlay('loading','Scanning your mod','ClamAV is checking the uploaded files. This can take a few minutes. Your mod stays unpublished until the scan passes.');await new Promise(r=>setTimeout(r,5000))}scanOverlay('warn','Scan is taking longer than usual','Your upload is still saved and will remain unpublished. You can check its status again shortly.');await new Promise(r=>setTimeout(r,3000));closeScanOverlay();return lastStatus}
+/* ===== AEROSIM upload + antivirus progress window (floating, centered, no page dimming) ===== */
+const AV_POLL_MS=4000,AV_TIMEOUT_MS=15*60*1000,AV_RESULT_MS=6000;
+const AV_STEPS=['Uploading your files','Antivirus scan','Published'];
+const avRuns=new Map();let avEl=null,avHide=null,avObs=null;
+function avBuild(){
+ if(avEl)return avEl;
+ avEl=document.createElement('div');avEl.id='aeroav';avEl.setAttribute('popover','manual');avEl.hidden=true;
+ avEl.innerHTML='<div class="aeroav-card" role="status" aria-live="polite"><div class="aeroav-ico"><i class="aeroav-ring"></i>'+
+ '<svg class="aeroav-s" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg>'+
+ '<svg class="aeroav-c" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'+
+ '<svg class="aeroav-w" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.01"/></svg></div>'+
+ '<h3 class="aeroav-t"></h3><p class="aeroav-d"></p><div class="aeroav-bar"><span></span></div><div class="aeroav-pct"></div>'+
+ '<ol class="aeroav-steps">'+AV_STEPS.map(s=>'<li><i></i><span>'+s+'</span></li>').join('')+'</ol></div>';
+ document.body.appendChild(avEl);return avEl;
+}
+/* state: up | scan | clean | infected | review ; o.step = index of the active step ; o.pct = number or null (indeterminate) */
+function avShow(state,title,desc,o){
+ o=o||{};const el=avBuild();clearTimeout(avHide);avHide=null;
+ el.dataset.state=state;
+ el.querySelector('.aeroav-t').textContent=title;el.querySelector('.aeroav-d').textContent=desc;
+ const bar=el.querySelector('.aeroav-bar span'),has=typeof o.pct==='number';
+ el.querySelector('.aeroav-bar').classList.toggle('det',has);
+ bar.style.width=has?Math.max(2,Math.min(100,o.pct))+'%':'';
+ el.querySelector('.aeroav-pct').textContent=has?Math.round(o.pct)+'%':'';
+ const idx=state==='clean'?3:(o.step||0);
+ el.querySelectorAll('.aeroav-steps li').forEach((li,i)=>{li.className=i<idx?'done':i===idx?(state==='infected'||state==='review'?'bad':'active'):''});
+ el.hidden=false;try{if(el.showPopover&&!el.matches(':popover-open'))el.showPopover()}catch(_){}
+}
+function closeScanOverlay(){
+ clearTimeout(avHide);avHide=null;if(!avEl)return;
+ try{if(avEl.hidePopover&&avEl.matches(':popover-open'))avEl.hidePopover()}catch(_){}
+ avEl.hidden=true;
+}
+function scanOverlay(){} /* legacy name kept; unused */
+/* Upload phase: mirror the real step text that the existing upload code writes on the Publish button. */
+function avFromBtn(btn,title){
+ const t=(btn.textContent||'').trim();if(!t)return;
+ const m=t.match(/(\d+)%/);let desc=t,pct=null;
+ if(/^(publishing|saving)/i.test(t))desc='Saving your mod…';
+ else if(m&&/^uploading/i.test(t))pct=+m[1];
+ avShow('up',title,desc,{step:0,pct});
+}
+function avObsStop(){if(avObs){avObs.disconnect();avObs=null}}
+function avUploadStart(btn,title){
+ avObsStop();avShow('up',title,'Preparing upload…',{step:0});
+ avObs=new MutationObserver(()=>avFromBtn(btn,title));avObs.observe(btn,{childList:true,characterData:true,subtree:true});
+}
+function avUploadFail(){avObsStop();closeScanOverlay()}
+function waitForModScan(modId){
+ if(avRuns.has(modId))return avRuns.get(modId); /* no duplicate popups or polling loops */
+ avObsStop();
+ const run=(async()=>{
+  const started=Date.now();let fails=0;
+  const scanning=d=>avShow('scan','Scanning your mod...',d||'Checking your upload for viruses and suspicious files.',{step:1});
+  scanning();
+  while(Date.now()-started<AV_TIMEOUT_MS){
+   let row=null;
+   try{
+    const {data,error}=await sb.from('mods').select('scan_status,published').eq('id',modId).single();
+    if(error)throw error;row=data;fails=0;
+   }catch(e){
+    fails++;console.warn('Scan status check failed:',e);
+    if(fails>=3)scanning('Connection hiccup. Still trying to reach the scanner.');
+   }
+   if(row){
+    const s=row.scan_status||'pending';
+    if(s==='clean'&&row.published){avShow('clean','Scan passed!','Your mod is published.');return await avFinish('clean')}
+    if(s==='infected'){avShow('infected','Threat detected.','Your mod was not published.',{step:1});return await avFinish('infected')}
+    if(['review','error','rejected'].includes(s)){avShow('review','Needs review','Your upload needs manual review.',{step:1});return await avFinish('review')}
+    if(fails===0)scanning();
+   }
+   await new Promise(r=>setTimeout(r,AV_POLL_MS));
+  }
+  avShow('review','Scan is taking longer','Your mod stays unpublished until the scan finishes.',{step:1});
+  return await avFinish('timeout');
+ })().finally(()=>avRuns.delete(modId));
+ avRuns.set(modId,run);return run;
+}
+async function avFinish(status){await new Promise(r=>{avHide=setTimeout(r,AV_RESULT_MS)});closeScanOverlay();return status}
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
 function shrink(file,w,h){return new Promise(r=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),s=Math.max(w/i.width,h/i.height);x.drawImage(i,(w-i.width*s)/2,(h-i.height*s)/2,i.width*s,i.height*s);r(c.toDataURL('image/jpeg',.84))};i.onerror=()=>r('');i.src=URL.createObjectURL(file)})}
 // Reusable interactive cropper. The chosen crop is rendered to a compressed image before saving.
@@ -819,7 +953,8 @@ document.addEventListener('submit',async e=>{
   publishingMod=true;
   const submitBtn=f.querySelector('button[type="submit"]');
   const originalSubmitText=submitBtn?.textContent;
-  if(submitBtn){submitBtn.disabled=true;submitBtn.textContent=existingMod?'Saving…':'Publishing…';}
+  if(submitBtn){submitBtn.disabled=true;submitBtn.textContent=existingMod?'Saving…':'Publishing…';}avLockForm(f,true);
+  if(submitBtn)avUploadStart(submitBtn,existingMod?'Saving your changes':'Uploading your mod');
   err.textContent='';window.onbeforeunload=e=>{e.preventDefault();e.returnValue='';return ''};
   const old=existingMod;
   if(!old&&!draftModId)draftModId=crypto.randomUUID();
@@ -831,17 +966,16 @@ document.addEventListener('submit',async e=>{
   try{
    savedMod=await store.put(m);
  }catch(uploadError){
-   console.error('AEROSIM mod save failed:',uploadError);
-   publishingMod=false;window.onbeforeunload=null;
+   console.error('AEROSIM mod save failed:',uploadError);avUploadFail();
+   publishingMod=false;window.onbeforeunload=null;avLockForm(f,false);
    if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=(existingMod?'Retry saving changes':'Retry publishing')+' (progress is kept)';}
    err.textContent='Save did not finish: '+(uploadError&&uploadError.message||'unknown error')+' Your progress is saved. Press the button once to continue where it stopped.';
    return;
  }
  // New and edited mods remain hidden until the antivirus scanner approves them.
- if(savedMod.scanStatus==='pending'){
-   try{savedMod.scanStatus=await waitForModScan(savedMod.id)}catch(scanError){console.warn('Antivirus status polling paused:',scanError);closeScanOverlay();toast('Upload saved; antivirus scan is still pending.')}
-   try{mods=await store.all()}catch(e){console.warn('Post-scan catalogue refresh failed:',e)}
- }
+ // The scan popup is a separate floating component: the form closes first and polling runs in the background.
+ const scanModId=savedMod.id,needsScan=savedMod.scanStatus==='pending';
+ avObsStop();if(!needsScan)closeScanOverlay();
  // The database has confirmed the save. Update the local catalogue immediately;
  // a later refresh/network error must never turn a successful save into a failure.
  mods=[savedMod,...mods.filter(x=>x.id!==savedMod.id)];
@@ -854,325 +988,13 @@ document.addEventListener('submit',async e=>{
  // After publishing, clear any old browse filters so the newly uploaded mod
  // is immediately visible in the main catalogue (not only in Trending).
  if(typeof resetBrowseFilters==='function')resetBrowseFilters();else{cat='All';plat='all';q='';favOnly=false;window.pf='all';sort='new';if($('#q'))$('#q').value='';if($('#plat'))$('#plat').value='all';if($('#browseFilter'))$('#browseFilter').value='new|all';if($('#favT'))$('#favT').setAttribute('aria-pressed','false');if(typeof chips==='function')chips();}
- publishingMod=false;window.onbeforeunload=null;
+ publishingMod=false;window.onbeforeunload=null;avLockForm(f,false);
  if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=originalSubmitText||'Upload mod';}
  f.reset();$('#descEditor').innerHTML='';$('#descRaw').value='';resetShotEditor();editingModId=null;draftModId=null;localStorage.removeItem('aerosimLargeDraftId');$('#dUp').close();render();toast(savedMod.scanStatus==='clean'?(old?'Update approved and published.':'Scan passed — your mod is published.'):(['infected','review','error','rejected'].includes(savedMod.scanStatus)?'Upload held for security review.':'Submitted for antivirus scanning. It will appear after it passes.'));
+ if(needsScan){waitForModScan(scanModId).then(async()=>{try{mods=await store.all();render()}catch(e){console.warn('Post-scan refresh failed:',e)}}).catch(e=>{console.warn('Scan watcher stopped:',e);closeScanOverlay()})}
  }
 });
 document.addEventListener('input',e=>{if(e.target.id==='descEditor')$('#descRaw').value=e.target.innerHTML;if(e.target.form&&e.target.form.id==='accF'&&e.target.name==='name')$('#previewName').textContent=e.target.value||'Your display name'});
 document.addEventListener('change',async e=>{
  if(e.target.name==='shots'){
   const incoming=[...e.target.files];e.target.value='';
-  const current=window.shotFiles||[];
-  if(current.length+incoming.length>8){toast('You can add up to 8 screenshots.');return}
-  const valid=incoming.filter(f=>f.type.startsWith('image/')&&f.size<=5*1024*1024);
-  if(valid.length!==incoming.length)toast('Only image files up to 5 MB each are accepted.');
-  window.shotFiles=[...current,...valid];
-  window.croppedShots=window.croppedShots||[];
-  const start=current.length;
-  valid.forEach((f,j)=>{const i=start+j;const reader=new FileReader();reader.onload=()=>{window.croppedShots[i]=reader.result;$('#shotN').textContent=window.shotFiles.length+' selected · cropping is optional'};reader.readAsDataURL(f)});
-  $('#shotTools').insertAdjacentHTML('beforeend',valid.map((f,j)=>{const i=start+j;return `<div class="shot-tool"><img id="shotPreview${i}" src="${URL.createObjectURL(f)}" alt="Screenshot ${i+1}"><button type="button" data-shot-crop="${i}">Crop (optional)</button><button type="button" data-shot-remove="${i}" style="margin-top:5px">Remove</button></div>`}).join(''));
-  $('#shotN').textContent=window.shotFiles.length+' selected · cropping is optional';
- }
- if(e.target.form&&e.target.form.id==='accF'&&(e.target.name==='pfp'||e.target.name==='banner')){
-  const file=e.target.files&&e.target.files[0];if(!file)return;if(!file.type.startsWith('image/'))return toast('Please choose an image file');
-  const kind=e.target.name, w=kind==='pfp'?512:1600,h=kind==='pfp'?512:500;
-  cropImageFile(file,w,h,kind==='pfp'?'Crop profile picture':'Crop profile banner',data=>{if(kind==='pfp'){window.pendingPfp=data;$('#previewPfp').src=data}else{window.pendingBanner=data;$('#previewBanner').style.backgroundImage=`url("${data}")`}});
- }
-});
-document.addEventListener('click',async e=>{
- const c=s=>e.target.closest(s);
- if(c('[data-close]'))return c('dialog').close();
- if(c('#upBtn')||c('#navUp')){e.preventDefault();return openUp()}
- if(c('[data-auth]'))return openAcc();
- if(c('[data-sendcode]'))return sendCode($('#authF'));
-  if(c('[data-reset]')){e.preventDefault();TAB='reset';RESET_STEP='request';RESET_EMAIL='';return authForm()}
- const tb=c('[data-tab]');if(tb){e.preventDefault();TAB=tb.dataset.tab;return authForm()}
- if(c('[data-editp]'))return openAcc(1);
- if(c('[data-out]')){await sb.auth.signOut();cloudUser=null;cloudProfile=null;save();closeAll();hdr();render();return toast('Signed out')}
- const fb=c('[data-f]');if(fb){const mm=me();if(!mm){closeAll();return openAcc()}const t=fb.dataset.f;if(t===mm.username)return;const l=D.follows[mm.username]||[];D.follows[mm.username]=l.includes(t)?l.filter(x=>x!==t):l.concat(t);save();profile(t);return toast(l.includes(t)?'Unfollowed':'Following '+nm(t))}
- const w=c('[data-u]');if(w){closeAll();return profile(w.dataset.u)}
- const g=c('[data-g]');if(g){$('#mainImg').src=g.src;document.querySelectorAll('.gal img').forEach(i=>i.classList.toggle('on',i===g));return}
- const cd=c('.card');if(cd){closeAll();return openMod(cd.dataset.id)}
- const cb=c('[data-c]');if(cb){cat=cb.dataset.c;chips();return render()}
- const dl=c('[data-dl]');if(dl)return download(dl.dataset.dl);
- if(c('[data-editmod]')){const id=$('#dView').dataset.id;$('#dView').close();return openUp(id)}
- if(c('[data-shot-remove]')){const i=+c('[data-shot-remove]').dataset.shotRemove;window.croppedShots.splice(i,1);window.shotFiles.splice(i,1);renderShotTools();return}
- if(c('[data-del]')){const id=$('#dView').dataset.id;if(confirm('Delete this mod? This cannot be undone.')){await store.del(id);mods=mods.filter(x=>x.id!==id);$('#dView').close();render();toast('Deleted')}return}
- if(c('#go')){q=$('#q').value.trim().toLowerCase();render();$('#browse').scrollIntoView({behavior:'smooth'})}
- if(e.target.tagName==='DIALOG')e.target.close();
-});
-document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('card')){e.preventDefault();e.target.click()}});
-$('#q').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase();render()});
-$('#plat').onchange=e=>{plat=e.target.value;render()};const legacySort=$('#sort');if(legacySort)legacySort.onchange=e=>{sort=e.target.value;render()};
-(async()=>{
- chips();
- try{await store.open()}catch(e){console.error('AEROSIM startup failed:',e)}
- // Profile/ratings failures must never prevent the public mod catalogue from loading.
- try{await loadCloudProfile()}catch(e){console.error('AEROSIM profile load failed:',e);cloudProfile=profileFallback(cloudUser)}
- try{mods=SEED.concat(await store.all())}catch(e){console.error('AEROSIM mod catalogue load failed:',e);mods=SEED.slice();toast('Could not load mods. Check your connection and refresh.')}
- try{await loadSharedFeedback()}catch(e){console.error('AEROSIM feedback load failed:',e)}
- hdr();render();
-})();
-/* AEROSIM v2 FEATURES */
-Object.assign(D,{fav:D.fav||{},rate:D.rate||{},com:D.com||{}});
-let favOnly=false,view=localStorage.getItem('amView')||'grid';
-// Normalize platform labels from older uploads and Supabase rows before filtering.
-const platformMatches=(m,selected)=>{
- if(selected==='all')return true;
- const labels=(Array.isArray(m.plat)?m.plat:[]).map(x=>String(x).trim().toLowerCase());
- if(labels.includes(String(selected).trim().toLowerCase()))return true;
- // Patreon-only mods are not tied to a PC/Android file platform.
- return !labels.some(x=>x==='pc'||x==='android')&&Number(m.price)>1&&!!String(m.patreon||'').trim();
-};
-const matchesBrowse=m=>{
- const categoryOK=cat==='All'||String(m.cat||'').trim().toLowerCase()===String(cat).trim().toLowerCase();
- const price=Number(m.price||0);
- const priceOK=window.pf==='paid'?price>0:window.pf==='free'?price===0:true;
- const queryOK=!q||[m.title,m.author,nm(m.author),m.tag,m.cat,m.desc].join(' ').toLowerCase().includes(q);
- return categoryOK&&platformMatches(m,plat)&&(!favOnly||isFav(m.id))&&priceOK&&queryOK;
-};
-const isFav=id=>!!me()&&(D.fav[me().username]||[]).includes(id);
-const avg=id=>{const v=Object.values(D.rate[id]||{});return v.length?v.reduce((a,b)=>a+b,0)/v.length:0};
-const ago=t=>{const s=(Date.now()-t)/1e3;return s<60?'just now':s<3600?Math.floor(s/60)+'m ago':s<86400?Math.floor(s/3600)+'h ago':Math.floor(s/86400)+'d ago'};
-const ACC=['#43a5ff','#ffbd59','#ff6b8b','#7cf29a','#b48cff','#ff8a4c'];
-function cardX(m){const a=avg(m.id);return `<article class="card" tabindex="0" data-id="${m.id}"><div class="th">${thumb(m)}<span class="tag">${esc(m.cat)}</span>${badges(m)}<button class="fav ${isFav(m.id)?'on':''}" data-fav="${m.id}" aria-label="Favorite" aria-pressed="${isFav(m.id)}">&#9829;</button></div><div class="cb"><h3>${esc(m.title)}</h3><div class="meta"><span>by <b class="who" ${user(m.author)?`data-u="${esc(m.author)}"`:''}>${esc(nm(m.author))}</b></span><span>${a?`<b class="st">&#9733; ${a.toFixed(1)}</b> &middot; `:''}${m.dl} downloads</span></div></div></article>`}
-function render(){
- const l=mods.filter(matchesBrowse);
- l.sort(sort==='pop'?(a,b)=>b.dl-a.dl||b.date-a.date:sort==='top'?(a,b)=>avg(b.id)-avg(a.id)||b.dl-a.dl:(a,b)=>b.date-a.date);
- const g=$('#grid');g.classList.toggle('list',view==='list');
- g.innerHTML=l.length?l.map(m=>{try{return card(m)}catch(e){console.error('Could not draw mod',m&&m.id,e);return ''}}).join(''):`<div class="empty"><h3>${favOnly?'No favorites yet':'No mods found'}</h3><p>${favOnly?'Tap the heart on any mod to save it here.':'Try another search or category, or upload the first one.'}</p></div>`;
- let T=$('#trend');if(!T){T=document.createElement('section');T.id='trend';$('#browse').prepend(T)}
- const tr=[...mods].sort((a,b)=>(b.dl+avg(b.id)*5)-(a.dl+avg(a.id)*5)||b.date-a.date).slice(0,3);
- T.innerHTML=(!q&&cat==='All'&&!favOnly&&mods.length&&typeof trendHTML==='function')?trendHTML():'';
- $('#sMods').textContent=mods.length;$('#sDl').textContent=mods.reduce((a,m)=>a+m.dl,0);$('#sAu').textContent=new Set(mods.map(m=>m.author)).size;
-}
-// The filter bar is simplified below: favorites stays as a toggle; list view is removed.
-view='grid';
-function sectionX(id){const u=me(),r=D.rate[id]||{},mine=u?r[u.username]||0:0,n=Object.keys(r).length,a=avg(id),cs=D.com[id]||[];
- return `<div class="x2" id="x2"><div class="rrow"><div class="stars" role="group" aria-label="Rate this mod">${[1,2,3,4,5].map(i=>`<button data-star="${i}" class="${i<=mine?'on':''}" aria-label="${i} stars">&#9733;</button>`).join('')}</div><span class="note">${n?a.toFixed(1)+' from '+n+' rating'+(n>1?'s':''):'No ratings yet'}</span><button class="btn alt" data-fav="${id}" style="margin-left:auto">&#9829; ${isFav(id)?'Saved':'Save'}</button></div><h3>Comments (${cs.length})</h3>${cs.map((c,i)=>`<div class="cm"><img src="${ava(user(c.u))}" alt=""><div><b class="who" data-u="${esc(c.u)}">${esc(nm(c.u))}</b> <small>${ago(c.t)}</small><div>${esc(c.x)}</div>${u&&u.username===c.u?`<small><a href="#" data-cdel="${esc(c.id||'')}" style="color:var(--ac)">Delete</a></small>`:''}</div></div>`).join('')||'<p class="note">No comments yet. Say how the install went.</p>'}<div class="cin"><textarea id="cin" maxlength="300" rows="1" placeholder="${u?'Write a comment':'Sign in to comment'}"></textarea><button class="btn" data-cpost>Post</button></div></div>`}
-const paintX=()=>{const d=$('#dView');if(d.open&&$('#x2'))$('#x2').outerHTML=sectionX(d.dataset.id)};
-const _om=openMod;openMod=function(id){_om(id);$('#dView .db').insertAdjacentHTML('beforeend',sectionX(id))};
-document.addEventListener('click',async e=>{
- const c=s=>e.target.closest(s),need=t=>{if(me())return 1;toast(t);openAcc()};
- const f=c('[data-fav]');if(f){e.stopPropagation();e.preventDefault();if(!need('Sign in to save favorites'))return;const u=me().username,id=f.dataset.fav,l=D.fav[u]||[];D.fav[u]=l.includes(id)?l.filter(x=>x!==id):l.concat(id);save();render();paintX();return toast(l.includes(id)?'Removed from favorites':'Saved to favorites')}
- if(c('#favT')){e.stopPropagation();favOnly=!favOnly;$('#favT').setAttribute('aria-pressed',favOnly);return render()}
- const s=c('[data-star]');
- if(s){
-  e.stopPropagation();if(!need('Sign in to rate'))return;
-  const id=$('#dView').dataset.id,rating=+s.dataset.star;
-  const {error}=await sb.from('mod_ratings').upsert({mod_id:id,user_id:cloudUser.id,rating},{onConflict:'mod_id,user_id'});
-  if(error)return toast('Rating failed: '+error.message);
-  await loadSharedFeedback();render();paintX();return toast('Rating saved');
- }
- if(c('[data-cpost]')){
-  e.stopPropagation();if(!need('Sign in to comment'))return;
-  const x=$('#cin').value.trim();if(!x)return;
-  const id=$('#dView').dataset.id;
-  const {error}=await sb.from('mod_comments').insert({mod_id:id,user_id:cloudUser.id,body:x});
-  if(error)return toast('Comment failed: '+error.message);
-  await loadSharedFeedback();return paintX();
- }
- const cd=c('[data-cdel]');
- if(cd){
-  e.preventDefault();e.stopPropagation();
-  const commentId=cd.dataset.cdel;
-  const {error}=await sb.from('mod_comments').delete().eq('id',commentId).eq('user_id',cloudUser.id);
-  if(error)return toast('Delete comment failed: '+error.message);
-  await loadSharedFeedback();paintX();
- }
-},true);
-function profile(un){
- const u=user(un);if(!u)return toast('Profile not found');const mm=me(),own=mm&&mm.username===un,l=mods.filter(x=>x.author===un),ac=u.accent||'#43a5ff',dls=l.reduce((a,m)=>a+m.dl,0),bd=[];
- if(l.length)bd.push('Creator');if(l.length>=3)bd.push('Prolific');if(dls>=100)bd.push('100+ downloads');if(u.email)bd.push('Verified');if(u.demo)bd.push('Demo');
- $('#dProf').innerHTML=`<div class="dh"><h2 style="font-size:22px">Profile</h2><button class="x" data-close aria-label="Close">&times;</button></div><div class="pb" style="background:linear-gradient(120deg,${ac}99,#0e1a33)">${u.banner?`<img src="${u.banner}" alt="">`:''}</div><div class="ph" style="--ua:${ac}"><img class="av" src="${ava(u)}" alt=""><div style="flex:1;min-width:140px;padding-bottom:6px"><h2>${esc(u.name)}</h2><div class="note">@${esc(un)}${u.joined?' &middot; joined '+new Date(u.joined).toLocaleDateString(undefined,{month:'short',year:'numeric'}):''}</div><div class="badges">${bd.map(b=>`<span>${b}</span>`).join('')}</div></div>${own?'<button class="btn alt" data-editp>Edit profile</button><button class="btn alt" data-out>Sign out</button>':`<button class="btn ${isF(un)?'alt':''}" data-f="${esc(un)}">${isF(un)?'Following':'Follow'}</button>`}</div>${u.bio?`<p class="bio">${esc(u.bio)}</p>`:own?'<p class="bio note">Add a short bio with Edit profile.</p>':''}<div class="db" style="padding-top:0"><div class="stats" style="margin:0 0 18px"><div><b>${folN(un)}</b>followers</div><div><b>${(D.follows[un]||[]).length}</b>following</div><div><b>${l.length}</b>mods</div><div><b>${dls}</b>downloads</div></div><div class="grid">${l.length?l.map(card).join(''):'<div class="empty">No mods yet.</div>'}</div></div>`;
- if(!$('#dProf').open)$('#dProf').showModal();
-}
-function accForm(){
- const u=me();if(!u)return openAcc();const ac=u.accent||ACC[0];
- $('#dAcc').innerHTML=`<div class="dh"><h2>Make your profile yours</h2><button class="x" data-close aria-label="Close">&times;</button></div><form class="db" id="accF">
- <div class="profile-preview" id="profilePreview" style="--ua:${ac}"><div class="preview-banner" id="previewBanner" style="${u.banner?`background-image:url('${u.banner}')`:`background-image:linear-gradient(120deg,${ac}99,#111d31)`}"></div><div class="preview-person"><img id="previewPfp" src="${ava(u)}" alt="Profile picture preview"><div><h3 id="previewName">${esc(u.name)}</h3><small>@${esc(u.username)}</small></div></div><div class="pbio" id="previewBio">${esc(u.bio||'Your bio shows here.')}</div></div>
- <div class="profile-edit-grid"><label>Display name<input name="name" required minlength="2" maxlength="30" value="${esc(u.name)}"></label><label>Accent color<div class="sw">${ACC.map(c=>`<label style="margin:0"><input type="radio" name="accent" value="${c}" ${c===ac?'checked':''}><span style="background:${c}" title="${c}"></span></label>`).join('')}</div></label><label>Profile picture<input type="file" name="pfp" accept="image/*"><span class="note">Square works best</span></label><label>Banner image<input type="file" name="banner" accept="image/*"><span class="note">Wide works best</span></label></div>
- <label>Bio<textarea name="bio" rows="2" maxlength="160" placeholder="Which aircraft or airports do you fly and mod?">${esc(u.bio||'')}</textarea></label>
- <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn warn" type="submit">Save profile</button><button class="btn alt" type="button" data-close>Skip for now</button><span class="note">The preview updates as you edit.</span></div></form>`}
-document.addEventListener('submit',e=>{if(e.target.id!=='accF')return;const u=me(),d=new FormData(e.target);if(u){u.bio=(d.get('bio')||'').trim().slice(0,160);u.accent=d.get('accent')||ACC[0];const pp=(d.get('paypal')||'').trim().replace(/^.*paypal\.me\//i,'');u.paypal=/^[A-Za-z0-9]{1,20}$/.test(pp)?pp:''}},true);
-document.addEventListener('input',e=>{const f=e.target.form;if(!f||f.id!=='accF')return;if(e.target.name==='bio')$('#previewBio').textContent=e.target.value||'Your bio shows here.';if(e.target.name==='accent'){$('#profilePreview').style.setProperty('--ua',e.target.value);const b=$('#previewBanner');if(!b.style.backgroundImage.includes('data:')&&!b.style.backgroundImage.includes('blob:'))b.style.backgroundImage=`linear-gradient(120deg,${e.target.value}99,#111d31)`}});
-// Rich-text controls and per-image crop actions for mod uploads.
-document.addEventListener('click',e=>{const fmt=e.target.closest('[data-format]');if(fmt){e.preventDefault();$('#descEditor').focus();const cmd=fmt.dataset.format;if(cmd==='foreColor')document.execCommand('foreColor',false,$('#descColor').value);else if(cmd==='fontSize')document.execCommand('fontSize',false,$('#descSize').value);else document.execCommand(cmd,false,null);return}if(e.target.closest('#descSize'))return;const shot=e.target.closest('[data-shot-crop]');if(shot){const i=+shot.dataset.shotCrop,file=window.shotFiles?.[i];if(!file)return;cropImageFile(file,960,540,'Crop screenshot '+(i+1),data=>{window.croppedShots[i]=data;$('#shotPreview'+i).src=data;const n=window.croppedShots.filter(Boolean).length;$('#shotN').textContent=window.shotFiles.length+' screenshots selected · cropping is optional'});return}},true);
-$('#descSize').addEventListener('change',()=>{ $('#descEditor').focus();document.execCommand('fontSize',false,$('#descSize').value) });
-document.addEventListener('keydown',e=>{if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)){e.preventDefault();$('#q').focus()}});
-render();
-</script>
-<script>/* AEROSIM v3 */
-const plainDesc=s=>{const d=document.createElement('div');d.innerHTML=s||'';return d.textContent||''};
-const sz=m=>{const f=Object.values(m.files||{}).filter(Boolean);return f.length?fmt(f.reduce((a,x)=>a+(Number(x.size)||0),0)):(String(m.patreon||'').trim()?'On Patreon':'No file')};
-const rate=id=>{const n=Object.keys(D.rate[id]||{}).length;return `<b>&#9733; ${avg(id).toFixed(1)}</b> <span style="color:var(--mu)">(${n})</span>`};
-function cardX(m){const au=user(m.author);return `<article class="card c2" tabindex="0" data-id="${m.id}"><div class="th">${thumb(m)}<button class="fav ${isFav(m.id)?'on':''}" data-fav="${m.id}" aria-label="Favorite" aria-pressed="${isFav(m.id)}">&#9829;</button></div><div class="cb"><div class="tags"><span>${esc(m.cat)}</span><span class="pr ${m.price>0?'paid':''}">${m.price>0?'$'+m.price.toFixed(2):'Free'}</span>${m.tag?`<span>${esc(m.tag)}</span>`:''}</div><h3>${esc(m.title)}</h3><p class="ds">${esc(plainDesc(m.desc).replace(/\n/g,' '))}</p><div class="au"><img src="${ava(au||{name:m.author})}" alt=""><b class="who" ${au?`data-u="${esc(m.author)}"`:''}>${esc(nm(m.author))}</b><span class="pl">${m.plat.map(p=>`<i>${p}</i>`).join('')}</span></div><div class="rt"><span>${rate(m.id)}</span><span>&#8681; ${m.dl}</span></div><div class="ft"><span>${sz(m)}</span><span>${ago(m.date)}</span></div></div></article>`}
-function trendHTML(){
- const score=m=>(Number(m.dl)||0)+avg(m.id)*5;
- const tr=[...mods].sort((a,b)=>score(b)-score(a)||b.date-a.date).slice(0,6),f=tr[0],r=tr.slice(1);
- const count=n=>Number(n||0).toLocaleString();
- if(!f)return `<section class="trend-v2"><div class="tv2-head"><div><span class="tv2-eyebrow">AEROSIM / COMMUNITY RADAR</span><h2>Trending <i>this week</i></h2><p>Your next favourite flight-sim add-on starts here.</p></div><span class="tv2-status"><i></i> COMMUNITY CHART</span></div><div class="tv2-empty">The radar is quiet for now. New community uploads will appear here.</div></section>`;
- return `<section class="trend-v2">
-  <div class="tv2-head"><div><span class="tv2-eyebrow">AEROSIM / COMMUNITY RADAR</span><h2>Trending <i>this week</i></h2><p>The add-ons getting attention across the AEROSIM community.</p></div><div class="tv2-head-right"><span class="tv2-status"><i></i> UPDATED WITH COMMUNITY DATA</span><span class="tv2-index">CHART NO. 001 <b>✦</b></span></div></div>
-  <div class="tv2-stage">
-   <div class="tv2-feature" role="button" tabindex="0" data-id="${f.id}">
-    <div class="tv2-feature-art">${thumb(f)}</div><div class="tv2-feature-vignette"></div><div class="tv2-scan"></div>
-    <div class="tv2-feature-top"><span class="tv2-winner"><b>✦</b> EDITOR'S SPOTLIGHT <small>01 / 06</small></span><span class="tv2-rating">★ ${avg(f.id).toFixed(1)} <small>COMMUNITY RATING</small></span></div>
-    <div class="tv2-feature-bottom"><span class="tv2-category">${esc(f.cat)}</span><h3>${esc(f.title)}</h3><p>By <b>${esc(nm(f.author))}</b></p><div class="tv2-stats"><span><b>${count(f.dl)}</b><small>DOWNLOADS</small></span><span><b>★ ${avg(f.id).toFixed(1)}</b><small>AVG. RATING</small></span><span><b>NO. 01</b><small>COMMUNITY RANK</small></span></div><div class="tv2-cta">VIEW ADD-ON <b>↗</b></div></div>
-   </div>
-   <aside class="tv2-board"><div class="tv2-board-head"><div><span>THE FLIGHT BOARD</span><h3>Top six</h3></div><span class="tv2-board-mark">LIVE<br>RANKING</span></div>
-    <div class="tv2-list">${r.map((m,i)=>`<article class="tv2-row" role="button" tabindex="0" data-id="${m.id}"><span class="tv2-number">${String(i+2).padStart(2,'0')}</span><div class="tv2-thumb">${thumb(m)}</div><div class="tv2-details"><b>${esc(m.title)}</b><span>${esc(m.cat)} · ${esc(nm(m.author))}</span><small>★ ${avg(m.id).toFixed(1)} <i>·</i> ⇩ ${count(m.dl)}</small></div><span class="tv2-go">↗</span></article>`).join('')||'<div class="tv2-empty">More add-ons are on the way.</div>'}</div>
-    <div class="tv2-board-foot"><span>01—06</span><span>DISCOVER WHAT'S FLYING</span></div>
-   </aside>
-  </div>
-  <div class="tv2-bottom"><span><b>✦</b> BUILT BY THE FLIGHT SIM COMMUNITY</span><span>DOWNLOAD. INSTALL. TAKE OFF. <b>↗</b></span></div>
-  <div class="tv2-disclaimer">Ranked using current download totals and average ratings — not a rolling 7-day activity count.</div>
- </section>`;
-}
-const TK=document.body.appendChild(Object.assign(document.createElement('div'),{id:'tick',className:'off',innerHTML:'<i></i><span></span>'}));
-let ti=0;function tick(){const ev=[];mods.filter(m=>!m.demo).forEach(m=>ev.push([m.date,`<b>${esc(nm(m.author))}</b> published ${esc(m.title)}`]));Object.entries(D.com).forEach(([id,l])=>{const m=mods.find(x=>x.id===id);if(m)l.forEach(c=>ev.push([c.t,`<b>${esc(nm(c.u))}</b> commented on ${esc(m.title)}`]))});
- if(!ev.length){TK.classList.add('off');return}ev.sort((a,b)=>b[0]-a[0]);const e=ev[ti++%Math.min(ev.length,6)];TK.querySelector('span').innerHTML=e[1];TK.classList.remove('off')}
-setInterval(tick,5000);setTimeout(tick,1500);
-render();
-</script>
-<script>/* AEROSIM v4 */
-window.pf='all';D.paid=D.paid||{};
-// Price and sort are combined into the single #browseFilter dropdown.
-function paintCr(){let C=$('#cr');if(!C){C=document.createElement('section');C.id='cr';$('#browse').append(C)}
- const t={};mods.forEach(m=>{const o=t[m.author]||(t[m.author]={n:0,d:0});o.n++;o.d+=m.dl});
- const l=Object.entries(t).filter(([k])=>user(k)).sort((a,b)=>b[1].d*3+b[1].n-a[1].d*3-a[1].n).slice(0,14);
- C.innerHTML=l.length?`<h2>Popular creators</h2><div class="crs">${l.map(([k])=>`<div class="cri" tabindex="0" data-u="${esc(k)}"><div class="rg"><img src="${ava(user(k))}" alt=""></div><span>${esc(nm(k))}</span></div>`).join('')}</div>`:''}
-const _r=render;render=function(){_r();paintCr()};
-const _om2=openMod;openMod=function(id){_om2(id);const m=mods.find(x=>x.id===id);if(!m||!(Number(m.price)>1&&String(m.patreon||'').trim()))return;
- $('#dView').querySelectorAll('[data-dl]').forEach(b=>b.remove());
- $('#dView .dl').insertAdjacentHTML('afterbegin',`<a class="btn warn" data-buy target="_blank" rel="noopener noreferrer" href="${esc(m.patreon)}">GO BUY!</a>`)};
-document.addEventListener('click',e=>{const b=e.target.closest('[data-paid]');if(!b)return;e.stopPropagation();const u=me();if(!u){toast('Sign in to unlock');return openAcc()}const id=b.dataset.paid;(D.paid[u.username]=D.paid[u.username]||[]).push(id);save();$('#dView').close();openMod(id);toast('Unlocked')},true);
-render();
-</script>
-<script>document.addEventListener('click',e=>{if(e.target.closest('[data-buy]'))e.stopPropagation()},true);</script>
-<script>/* AEROSIM v5 */
-const THEMES=[['dark','Dark','linear-gradient(135deg,#0a1530,#14315c)'],['day','Day','linear-gradient(135deg,#6fb0f5,#f0f6fd)'],['midnight','Midnight','#000'],['sunset','Sunset','linear-gradient(135deg,#5a1e4a,#ffb15e)']];
-function setTheme(t){if(!THEMES.some(x=>x[0]===t))t='dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('amTheme',t)}catch(_){}document.querySelectorAll('.tm button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.th===t))}
-$('#tm').innerHTML=THEMES.map(t=>`<button role="menuitem" data-th="${t[0]}" aria-pressed="false"><i style="background:${t[2]}"></i>${t[1]}</button>`).join('');setTheme(document.documentElement.dataset.theme);
-document.body.insertAdjacentHTML('beforeend','<dialog id="dSrch" aria-label="Search creators"><div class="ssb"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg><input id="sq" type="search" placeholder="Search creators by name or @username" autocomplete="off" aria-label="Search creators"><button class="x" data-close aria-label="Close">&times;</button></div><div id="sres"></div></dialog>');
-function paintS(){const v=($('#sq').value||'').trim().toLowerCase().replace(/^@/,''),m0=me(),st=o=>+(o.k.startsWith(v)||o.u.name.toLowerCase().startsWith(v));
- let l=Object.keys(D.users).map(k=>({k,u:D.users[k],n:mods.filter(m=>m.author===k).length,f:folN(k)}));
- if(v)l=l.filter(o=>o.k.includes(v)||o.u.name.toLowerCase().includes(v)).sort((a,b)=>st(b)-st(a)||b.f-a.f);else l.sort((a,b)=>b.f*3+b.n-a.f*3-a.n);
- l=l.slice(0,v?20:8);
- $('#sres').innerHTML=l.length?`<div class="sh">${v?l.length+' creator'+(l.length>1?'s':''):'Suggested creators'}</div>`+l.map(o=>`<div class="sr" tabindex="0" data-u="${esc(o.k)}"><img class="av" src="${ava(o.u)}" alt=""><div class="si"><b>${esc(o.u.name)}</b><small>@${esc(o.k)} &middot; ${o.n} mod${o.n===1?'':'s'} &middot; ${o.f} follower${o.f===1?'':'s'}</small></div>${m0&&m0.username===o.k?'<span class="note">You</span>':`<button class="btn ${isF(o.k)?'alt':''}" data-fs="${esc(o.k)}">${isF(o.k)?'Following':'Follow'}</button>`}</div>`).join(''):`<div class="empty" style="padding:34px 16px">${v?'No creators match "'+esc(v)+'".':'No creators yet. Create an account to be the first.'}</div>`}
-function openS(){const d=$('#dSrch');if(!d.open)d.showModal();$('#sq').value='';paintS();$('#sq').focus()}
-$('#sq').addEventListener('input',paintS);
-$('#sq').addEventListener('keydown',e=>{if(e.key==='Enter'){const r=$('#sres .sr');if(r)r.click()}});
-document.addEventListener('click',e=>{const c=s=>e.target.closest(s);
- if(c('#srchBtn')){e.stopPropagation();return openS()}
- if(c('#thBtn')){e.stopPropagation();return $('#tm').classList.toggle('on')}
- const t=c('[data-th]');if(t){e.stopPropagation();setTheme(t.dataset.th);return $('#tm').classList.remove('on')}
- const fs=c('[data-fs]');if(fs){e.stopPropagation();const m=me();if(!m){$('#dSrch').close();toast('Sign in to follow creators');return openAcc()}const k=fs.dataset.fs,l=D.follows[m.username]||[];D.follows[m.username]=l.includes(k)?l.filter(x=>x!==k):l.concat(k);save();paintS();return toast(l.includes(k)?'Unfollowed '+nm(k):'Following '+nm(k))}
- if(!c('.tmw'))$('#tm').classList.remove('on')},true);
-document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openS()}if(e.key==='Escape')$('#tm').classList.remove('on');if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('sr'))e.target.click()});
-</script>
-
-<script>
-/* AEROSIM v7: one authoritative browse-filter controller. */
-chips=function(){
- const visible=['All','Parking spots','Scenery','Aircraft','Liveries','Other'];
- $('#chips').innerHTML=visible.map(name=>`<button type="button" class="chip" aria-pressed="${name===cat}" data-c="${esc(name)}">${esc(name)}</button>`).join('');
- $('#catSel').innerHTML=CATS.map(name=>`<option>${esc(name)}</option>`).join('');
-};
-function resetBrowseFilters(){
- cat='All';plat='all';q='';sort='new';window.pf='all';favOnly=false;
- if($('#q'))$('#q').value='';
- if($('#plat'))$('#plat').value='all';
- if($('#browseFilter'))$('#browseFilter').value='new|all';
- if($('#favT'))$('#favT').setAttribute('aria-pressed','false');
- chips();
-}
-// Capture these controls before legacy delegated listeners so each change is applied exactly once.
-document.addEventListener('click',e=>{
- const chip=e.target.closest('#chips [data-c]');
- if(!chip)return;
- e.preventDefault();e.stopImmediatePropagation();
- cat=chip.dataset.c||'All';chips();render();
-},true);
-document.addEventListener('change',e=>{
- if(e.target.matches('#plat')){
-  e.stopImmediatePropagation();plat=e.target.value==='PC'?'PC':e.target.value==='Android'?'Android':'all';render();
- }else if(e.target.matches('#browseFilter')){
-  e.stopImmediatePropagation();
-  const [nextSort,nextPrice]=(e.target.value||'new|all').split('|');
-  sort=['new','pop','top'].includes(nextSort)?nextSort:'new';
-  window.pf=['free','paid'].includes(nextPrice)?nextPrice:'all';render();
- }
-},true);
-// Keep the initial catalogue unfiltered. Publishing also calls this reset before rendering.
-resetBrowseFilters();
-render();
-</script>
-
-<style>
-#ownerBtn{display:none}.owner-wrap{padding:22px}.owner-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd,#26344d)}.owner-row:last-child{border-bottom:0}.owner-meta{min-width:0}.owner-meta b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.owner-meta small{display:block;color:var(--mu,#8fa0bd);margin-top:3px}.owner-danger{background:#7f1d1d!important;color:#fff!important;border:0!important}.owner-empty{color:var(--mu,#8fa0bd);padding:15px 0}.owner-count{font-size:12px;color:var(--mu,#8fa0bd);font-weight:600}.owner-tabs{display:flex;gap:8px;margin-bottom:14px}.owner-tabs button.active{background:var(--ac,#43a5ff);color:#fff}.owner-search{width:100%;box-sizing:border-box;margin-bottom:10px}.owner-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.owner-note{color:var(--mu,#8fa0bd);font-size:12px;margin-top:8px}@media(max-width:800px){.owner-head{align-items:flex-start;flex-direction:column}}
-
-/* Patreon purchase button: give it a clearly rectangular shape */
-.btn.warn[data-buy]{min-width:180px;min-height:56px;padding:14px 34px;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;box-sizing:border-box}
-</style>
-<dialog id="ownerDlg"><div class="dh"><div><h2 style="margin:0">Owner panel</h2><div class="owner-note">Restricted to the owner account.</div></div><button class="x" data-close aria-label="Close">&times;</button></div><div class="owner-wrap"><div class="owner-head"><div class="owner-tabs"><button class="btn active" data-otab="users">Accounts</button><button class="btn alt" data-otab="mods">Mods</button><button class="btn alt" data-otab="review">Review</button></div><button class="btn alt" id="ownerRefresh">Refresh</button></div><div id="ownerBody"></div></div></dialog>
-<script>
-const OWNER_EMAIL='vitamodaeg@gmail.com';
-let ownerTab='users',ownerData={users:[],mods:[],review:[]};
-function isOwner(){return !!cloudUser && (cloudUser.email||'').toLowerCase()===OWNER_EMAIL}
-function ownerShow(){if(!isOwner())return toast('Owner access required');$('#ownerDlg').showModal();ownerLoad()}
-async function ownerLoad(){const body=$('#ownerBody');body.innerHTML='<div class="owner-empty">Loading…</div>';try{const [u,m,r]=await Promise.all([sb.rpc('owner_list_users'),sb.rpc('owner_list_mods'),sb.rpc('owner_list_scan_queue')]);if(u.error)throw u.error;if(m.error)throw m.error;if(r.error)throw r.error;ownerData={users:u.data||[],mods:m.data||[],review:r.data||[]};ownerRender()}catch(e){body.innerHTML='<div class="owner-empty">Could not load owner data: '+esc(e.message||String(e))+'</div>'}}
-function ownerRender(){const body=$('#ownerBody');if(ownerTab==='users'){body.innerHTML='<input class="owner-search" id="ownerSearch" placeholder="Search accounts by email or username"><div class="owner-count">'+ownerData.users.length+' accounts</div><div id="ownerList"></div>';ownerPaintUsers();$('#ownerSearch').oninput=ownerPaintUsers}else if(ownerTab==='mods'){body.innerHTML='<input class="owner-search" id="ownerSearch" placeholder="Search mods by title or creator"><div class="owner-count">'+ownerData.mods.length+' mods</div><div id="ownerList"></div>';ownerPaintMods();$('#ownerSearch').oninput=ownerPaintMods}else{body.innerHTML='<input class="owner-search" id="ownerSearch" placeholder="Search pending or flagged mods"><div class="owner-count">'+ownerData.review.length+' awaiting review or unpublished</div><div id="ownerList"></div>';ownerPaintReview();$('#ownerSearch').oninput=ownerPaintReview}}
-function ownerPaintUsers(){const v=($('#ownerSearch').value||'').toLowerCase();const l=ownerData.users.filter(u=>(u.email||'').toLowerCase().includes(v)||(u.username||'').toLowerCase().includes(v)||(u.display_name||'').toLowerCase().includes(v));$('#ownerList').innerHTML=l.length?l.map(u=>'<div class="owner-row"><div class="owner-meta"><b>'+esc(u.display_name||u.username||'No profile')+'</b><small>'+esc(u.email)+(u.username?' · @'+esc(u.username):'')+'</small></div>'+(u.id===cloudUser.id?'<span class="owner-count">YOU</span>':'<button class="btn owner-danger" data-owner-user="'+esc(u.id)+'">Delete account</button>')+'</div>').join(''):'<div class="owner-empty">No matching accounts.</div>'}
-function ownerPaintMods(){const v=($('#ownerSearch').value||'').toLowerCase();const l=ownerData.mods.filter(m=>(m.title||'').toLowerCase().includes(v)||(m.author_username||'').toLowerCase().includes(v));$('#ownerList').innerHTML=l.length?l.map(m=>'<div class="owner-row"><div class="owner-meta"><b>'+esc(m.title)+'</b><small>@'+esc(m.author_username||'unknown')+' · '+esc(m.category||'')+' · '+(m.published?'Published':'Unpublished')+'</small></div><button class="btn owner-danger" data-owner-mod="'+esc(m.id)+'">Delete mod</button></div>').join(''):'<div class="owner-empty">No matching mods.</div>'}
-function ownerPaintReview(){const v=($('#ownerSearch').value||'').toLowerCase();const l=ownerData.review.filter(m=>(m.title||'').toLowerCase().includes(v)||(m.author_username||'').toLowerCase().includes(v));$('#ownerList').innerHTML=l.length?l.map(m=>{const d=m.scan_details||{};const shots=(m.screenshots||[]).map(p=>'<a target="_blank" rel="noopener" href="'+esc(/^https?:/i.test(p)?p:publicUrl(p))+'">Screenshot</a>').join(' · ');const files=[m.pc_file_path?'<a target="_blank" rel="noopener" href="'+esc(/^https?:/i.test(m.pc_file_path)?m.pc_file_path:publicUrl(m.pc_file_path))+'">'+esc(m.pc_file_name||'PC file')+'</a>':'',m.android_file_path?'<a target="_blank" rel="noopener" href="'+esc(/^https?:/i.test(m.android_file_path)?m.android_file_path:publicUrl(m.android_file_path))+'">'+esc(m.android_file_name||'Android file')+'</a>':''].filter(Boolean).join(' · ');return '<div class="owner-row"><div class="owner-meta"><b>'+esc(m.title)+'</b><small>@'+esc(m.author_username||'unknown')+' · '+esc(m.category||'')+' · '+esc(m.scan_status||'pending')+(m.scan_engine?' · '+esc(m.scan_engine):'')+'</small><small>'+esc(d.note||'Awaiting antivirus scan or manual review')+'</small><small>'+(files||'No uploaded file')+(shots?' · '+shots:'')+'</small>'+(Array.isArray(d.detections)&&d.detections.length?'<small>Findings: '+esc(d.detections.join(', '))+'</small>':'')+'</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn" data-review-action="approve" data-review-id="'+esc(m.id)+'">Approve</button><button class="btn owner-danger" data-review-action="reject" data-review-id="'+esc(m.id)+'">Reject</button></div></div>'}).join(''):'<div class="owner-empty">Nothing is waiting for review.</div>'}
-document.addEventListener('click',async e=>{const b=e.target.closest('[data-otab]');if(b){ownerTab=b.dataset.otab;document.querySelectorAll('[data-otab]').forEach(x=>x.classList.toggle('active',x===b));ownerRender();return}if(e.target.closest('#ownerRefresh'))return ownerLoad();const rb=e.target.closest('[data-review-action]');if(rb){const action=rb.dataset.reviewAction;if(action==='reject'&&!confirm('Reject this mod and keep it unpublished?'))return;if(action==='approve'&&!confirm('Manually approve this mod and publish it? Only do this after checking the files.'))return;rb.disabled=true;rb.textContent=action==='approve'?'Approving…':'Rejecting…';try{const rr=await sb.rpc('owner_review_mod',{p_mod_id:rb.dataset.reviewId,p_action:action});if(rr.error)throw rr.error;if(!rr.data||rr.data.ok!==true)throw new Error(rr.data?.error||'Review action was not confirmed');toast(action==='approve'?'Mod approved and published':'Mod rejected');if(action==='approve'){mods=await store.all();render()}return ownerLoad()}catch(err){rb.disabled=false;rb.textContent=action==='approve'?'Approve':'Reject';return toast('Review failed: '+(err.message||String(err)))}}const ub=e.target.closest('[data-owner-user]');if(ub){if(!confirm('Delete this account and all of its mods? This cannot be undone.'))return;ub.disabled=true;ub.textContent='Deleting…';try{const r=await sb.rpc('owner_delete_user',{p_user_id:ub.dataset.ownerUser});if(r.error){ub.disabled=false;ub.textContent='Delete account';return toast('Delete failed: '+(r.error.message||String(r.error)))}if(r.data!==true){ub.disabled=false;ub.textContent='Delete account';return toast('Delete failed: Supabase did not confirm that the account was deleted.')}toast('Account deleted');return ownerLoad()}catch(err){ub.disabled=false;ub.textContent='Delete account';return toast('Delete failed: '+(err.message||String(err)))}}const mb=e.target.closest('[data-owner-mod]');if(mb){if(!confirm('Delete this mod permanently?'))return;mb.disabled=true;mb.textContent='Deleting…';try{const goneMod=mods.find(x=>x.id===mb.dataset.ownerMod);const r=await sb.rpc('owner_delete_mod_storage_api',{p_mod_id:mb.dataset.ownerMod});if(r.error){mb.disabled=false;mb.textContent='Delete mod';return toast('Delete failed: '+(r.error.message||String(r.error)))}if(!r.data||r.data.deleted!==true){mb.disabled=false;mb.textContent='Delete mod';return toast('Delete failed: Supabase did not confirm that the mod was deleted.')}const paths=Array.isArray(r.data.paths)?r.data.paths:[];let storageWarning='';if(paths.length){const sr=await sb.storage.from('aerosim-mods').remove(paths);if(sr.error)storageWarning=' Mod record deleted, but some files remain in storage: '+(sr.error.message||String(sr.error));}mods=mods.filter(x=>x.id!==mb.dataset.ownerMod);render();if(goneMod&&goneMod.files)cleanupLarge([goneMod.files.pc&&goneMod.files.pc.path,goneMod.files.and&&goneMod.files.and.path]);toast(storageWarning?'Mod deleted.'+storageWarning:'Mod deleted');return ownerLoad()}catch(err){mb.disabled=false;mb.textContent='Delete mod';return toast('Delete failed: '+(err.message||String(err)))}}});
-function ownerRefreshButton(){const b=$('#ownerBtn');if(b)b.style.display=isOwner()?'inline-flex':'none'}
-const _hdrOwner=hdr;hdr=function(){_hdrOwner();ownerRefreshButton()};setTimeout(ownerRefreshButton,0);
-</script>
-<script>document.addEventListener('change',e=>{const f=document.getElementById('form');if(!f||!e.target.files)return;if(e.target.name==='pc'&&e.target.files.length)f.elements.plat_pc.checked=true;if(e.target.name==='and'&&e.target.files.length)f.elements.plat_and.checked=true});</script>
-<script>
-/* Do not let Esc / the X / a backdrop click close the upload form while a publish is running. */
-(function(){const d=document.getElementById('dUp');if(!d)return;
- d.addEventListener('cancel',e=>{if(publishingMod){e.preventDefault();toast('Upload in progress, please wait')}});
- d.addEventListener('click',e=>{if(publishingMod&&(e.target===d||e.target.closest('[data-close]'))){e.stopImmediatePropagation();e.preventDefault();toast('Upload in progress, please wait')}},true);
-})();
-</script>
-
-<script>
-// Reliable mod-card opening: keep hover effects separate from actual click navigation.
-document.addEventListener('click', function(e) {
-  const card = e.target.closest && e.target.closest('.card[data-id]');
-  if (!card) return;
-  if (e.target.closest('button, a, [data-u], input, select, textarea')) return;
-  e.preventDefault();
-  e.stopPropagation();
-  if (typeof closeAll === 'function') closeAll();
-  if (typeof openMod === 'function') openMod(card.dataset.id);
-}, true);
-</script>
-
-<script>
-// Community Radar cards are separate from .card listings, so wire their click + keyboard actions explicitly.
-(function(){
-  function activateRadarItem(item){
-    if(!item || !item.dataset.id) return;
-    if(typeof closeAll==='function') closeAll();
-    if(typeof openMod==='function') openMod(item.dataset.id);
-  }
-  document.addEventListener('click',function(e){
-    const item=e.target.closest && e.target.closest('.tv2-feature[data-id], .tv2-row[data-id]');
-    if(!item) return;
-    e.preventDefault(); e.stopPropagation(); activateRadarItem(item);
-  },true);
-  document.addEventListener('keydown',function(e){
-    if(e.key!=='Enter' && e.key!==' ') return;
-    const item=e.target.closest && e.target.closest('.tv2-feature[data-id], .tv2-row[data-id]');
-    if(!item) return;
-    e.preventDefault(); e.stopPropagation(); activateRadarItem(item);
-  },true);
-})();
-</script>
-</body>
-</html>
