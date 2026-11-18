@@ -281,40 +281,22 @@ html[data-theme=day] dialog .db textarea::placeholder { color: #64748b; opacity:
 
 .logo-word{display:block;font-size:30px;font-weight:800;letter-spacing:-1.2px;line-height:1;color:var(--tx)}@media(max-width:700px){.logo-word{font-size:25px}}
 
-/* AEROSIM upload + antivirus progress window: centered floating card, never dims or blurs the page */
-#aeroav{position:fixed;inset:0;margin:auto;width:min(460px,calc(100vw - 28px));height:fit-content;padding:0;border:0;background:transparent;color:inherit;overflow:visible;z-index:2147483000;pointer-events:none}
+/* AEROSIM upload / antivirus loading popup: small centered box, dark blurred backdrop, above everything (top layer) */
+#aeroav{position:fixed;inset:auto;top:50%;left:50%;transform:translate(-50%,-50%);margin:0;padding:0;border:0;width:auto;height:auto;max-width:none;max-height:none;overflow:visible;background:none;color:#eef4ff;z-index:2147483647;pointer-events:none}
 #aeroav[hidden]{display:none}
-#aeroav::backdrop{display:none}
-.aeroav-card{pointer-events:auto;text-align:center;padding:26px 26px 22px;border-radius:20px;background:#0b1422;color:#eef4ff;border:1px solid rgba(96,165,250,.4);box-shadow:0 22px 70px rgba(0,0,0,.6);animation:aeroavIn .25s ease-out}
-@keyframes aeroavIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
-.aeroav-ico{position:relative;width:68px;height:68px;margin:0 auto 14px;display:grid;place-items:center;color:#4aa8ff}
-.aeroav-ico svg{position:relative;display:none}
-.aeroav-ring{position:absolute;inset:0;border-radius:50%;border:4px solid rgba(74,168,255,.2);border-top-color:#4aa8ff;animation:aeroavSpin 1s linear infinite}
+#aeroav::backdrop{background:transparent}
+/* while the upload form is open: dark blur over the form window only, card centered in it */
+#aeroav.on-form{transform:none;display:grid;place-items:center;overflow:hidden;border-radius:22px;background:rgba(3,8,18,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);pointer-events:auto;cursor:wait}
+#aeroav.on-form[hidden]{display:none}
+.aeroav-card{display:flex;flex-direction:column;align-items:center;gap:14px;min-width:220px;max-width:min(340px,calc(100vw - 40px));padding:26px 30px 24px;border-radius:18px;background:#0b1422;border:1px solid rgba(96,165,250,.35);box-shadow:0 22px 70px rgba(0,0,0,.6);text-align:center;animation:aeroavIn .2s ease-out}
+@keyframes aeroavIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.aeroav-ring{display:block;width:46px;height:46px;border-radius:50%;border:4px solid rgba(74,168,255,.22);border-top-color:#4aa8ff;animation:aeroavSpin .9s linear infinite}
 @keyframes aeroavSpin{to{transform:rotate(360deg)}}
-.aeroav-t{margin:0 0 6px;font-size:21px;line-height:1.2;font-family:inherit}
-.aeroav-d{margin:0 0 16px;font-size:14px;line-height:1.45;color:#a9bad1;min-height:1.45em;overflow-wrap:anywhere}
-.aeroav-bar{height:7px;border-radius:7px;background:#1b2a3e;overflow:hidden}
-.aeroav-bar span{display:block;width:35%;height:100%;border-radius:7px;background:linear-gradient(90deg,#168cff,#64c5ff);animation:aeroavBar 1.4s ease-in-out infinite alternate}
-.aeroav-bar.det span{animation:none;transition:width .3s ease}
-@keyframes aeroavBar{from{transform:translateX(-30%)}to{transform:translateX(190%)}}
-.aeroav-pct{height:18px;margin-top:6px;font-size:12px;font-weight:700;letter-spacing:.08em;color:#80bfff}
-.aeroav-steps{list-style:none;margin:12px 0 0;padding:14px 0 0;border-top:1px solid rgba(255,255,255,.1);display:grid;gap:9px;text-align:left}
-.aeroav-steps li{display:flex;align-items:center;gap:10px;font-size:14px;color:#6f819b}
-.aeroav-steps li i{width:16px;height:16px;border-radius:50%;border:2px solid #34465f;flex:none;position:relative}
-.aeroav-steps li.active{color:#eef4ff}.aeroav-steps li.active i{border-color:#4aa8ff;border-top-color:transparent;animation:aeroavSpin .9s linear infinite}
-.aeroav-steps li.done{color:#9fe0b4}.aeroav-steps li.done i{border-color:#22c55e;background:#22c55e}
-.aeroav-steps li.done i:after{content:"";position:absolute;left:3px;top:0;width:4px;height:8px;border:solid #0b1422;border-width:0 2px 2px 0;transform:rotate(45deg)}
-.aeroav-steps li.bad{color:#f3c27a}.aeroav-steps li.bad i{border-color:#f59e0b;background:#f59e0b}
-#aeroav[data-state=up] .aeroav-s,#aeroav[data-state=scan] .aeroav-s{display:block}
-#aeroav[data-state=clean] .aeroav-ico{color:#22c55e}#aeroav[data-state=clean] .aeroav-c{display:block}
-#aeroav[data-state=infected] .aeroav-ico{color:#ef4444}#aeroav[data-state=infected] .aeroav-w{display:block}
-#aeroav[data-state=review] .aeroav-ico{color:#f59e0b}#aeroav[data-state=review] .aeroav-w{display:block}
-#aeroav[data-state=clean] .aeroav-ring,#aeroav[data-state=infected] .aeroav-ring,#aeroav[data-state=review] .aeroav-ring{animation:none;border-color:currentColor;opacity:.35}
-#aeroav[data-state=clean] .aeroav-bar span,#aeroav[data-state=infected] .aeroav-bar span,#aeroav[data-state=review] .aeroav-bar span{animation:none;width:100%!important;transform:none}
-#aeroav[data-state=clean] .aeroav-bar span{background:#22c55e}
-#aeroav[data-state=infected] .aeroav-bar span{background:#ef4444}
-#aeroav[data-state=review] .aeroav-bar span{background:#f59e0b}
-@media(prefers-reduced-motion:reduce){.aeroav-ring,.aeroav-bar span,.aeroav-card,.aeroav-steps li.active i{animation:none!important}}
+.aeroav-t{margin:0;font-size:17px;font-weight:600;line-height:1.3;color:#eef4ff}
+.aeroav-d{margin:-6px 0 0;font-size:13px;line-height:1.4;color:#a9bad1}
+.aeroav-d:empty{display:none}
+#aeroav[data-state=clean] .aeroav-ring,#aeroav[data-state=infected] .aeroav-ring,#aeroav[data-state=review] .aeroav-ring{display:none}
+@media(prefers-reduced-motion:reduce){.aeroav-card{animation:none}.aeroav-ring{animation-duration:2.4s}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/dist/umd/supabase.min.js"></script>
 <script>if(!window.supabase){document.write('<script src="https://unpkg.com/@supabase/supabase-js@2.57.0/dist/umd/supabase.min.js"><\\/script>')}</script>
@@ -719,60 +701,57 @@ function render(){
  $('#sMods').textContent=mods.length;$('#sDl').textContent=mods.reduce((a,m)=>a+m.dl,0);$('#sAu').textContent=new Set(mods.map(m=>m.author)).size;
 }
 function chips(){$('#chips').innerHTML=['All',...CATS].map(c=>`<button class="chip" aria-pressed="${c===cat}" data-c="${esc(c)}">${esc(c)}</button>`).join('');$('#catSel').innerHTML=CATS.map(c=>`<option>${esc(c)}</option>`).join('')}
-/* ===== AEROSIM upload + antivirus progress window (floating, centered, no page dimming) ===== */
-const AV_POLL_MS=4000,AV_TIMEOUT_MS=15*60*1000,AV_RESULT_MS=6000;
-const AV_STEPS=['Uploading your files','Antivirus scan','Published'];
-const avRuns=new Map();let avEl=null,avHide=null,avObs=null;
+/* ===== AEROSIM upload + antivirus loading popup (small spinner box, blurred backdrop, always on top) ===== */
+const AV_POLL_MS=4000,AV_TIMEOUT_MS=15*60*1000,AV_RESULT_MS=4000;
+const avRuns=new Map();let avEl=null,avHide=null,avFrozen=[];
 function avBuild(){
- if(avEl)return avEl;
- avEl=document.createElement('div');avEl.id='aeroav';avEl.setAttribute('popover','manual');avEl.hidden=true;
- avEl.innerHTML='<div class="aeroav-card" role="status" aria-live="polite"><div class="aeroav-ico"><i class="aeroav-ring"></i>'+
- '<svg class="aeroav-s" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg>'+
- '<svg class="aeroav-c" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'+
- '<svg class="aeroav-w" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.01"/></svg></div>'+
- '<h3 class="aeroav-t"></h3><p class="aeroav-d"></p><div class="aeroav-bar"><span></span></div><div class="aeroav-pct"></div>'+
- '<ol class="aeroav-steps">'+AV_STEPS.map(s=>'<li><i></i><span>'+s+'</span></li>').join('')+'</ol></div>';
- document.body.appendChild(avEl);return avEl;
+ if(avEl&&avEl.isConnected)return avEl;
+ avEl=document.createElement('div');avEl.id='aeroav';avEl.hidden=true;
+ avEl.setAttribute('role','alertdialog');avEl.setAttribute('aria-modal','true');avEl.setAttribute('aria-label','Loading');
+ if('showPopover' in avEl)avEl.setAttribute('popover','manual'); /* popover = browser top layer: renders above an open modal <dialog> */
+ avEl.innerHTML='<div class="aeroav-card" role="status" aria-live="polite"><i class="aeroav-ring"></i><p class="aeroav-t"></p><p class="aeroav-d"></p></div>';
+ document.body.appendChild(avEl);
+ const du=document.getElementById('dUp');if(du)du.addEventListener('close',avLayout);
+ return avEl;
 }
-/* state: up | scan | clean | infected | review ; o.step = index of the active step ; o.pct = number or null (indeterminate) */
-function avShow(state,title,desc,o){
- o=o||{};const el=avBuild();clearTimeout(avHide);avHide=null;
- el.dataset.state=state;
- el.querySelector('.aeroav-t').textContent=title;el.querySelector('.aeroav-d').textContent=desc;
- const bar=el.querySelector('.aeroav-bar span'),has=typeof o.pct==='number';
- el.querySelector('.aeroav-bar').classList.toggle('det',has);
- bar.style.width=has?Math.max(2,Math.min(100,o.pct))+'%':'';
- el.querySelector('.aeroav-pct').textContent=has?Math.round(o.pct)+'%':'';
- const idx=state==='clean'?3:(o.step||0);
- el.querySelectorAll('.aeroav-steps li').forEach((li,i)=>{li.className=i<idx?'done':i===idx?(state==='infected'||state==='review'?'bad':'active'):''});
- el.hidden=false;try{if(el.showPopover&&!el.matches(':popover-open'))el.showPopover()}catch(_){}
+/* state: up | scan | clean | infected | review.  Never throws: a popup problem must not break the upload. */
+function avLayout(){
+ try{
+  if(!avEl||avEl.hidden)return;
+  const dlg=document.getElementById('dUp');
+  if(dlg&&dlg.open){const r=dlg.getBoundingClientRect();avEl.classList.add('on-form');Object.assign(avEl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'})}
+  else{avEl.classList.remove('on-form');['left','top','width','height'].forEach(k=>avEl.style[k]='')}
+ }catch(e){console.warn('AEROSIM popup layout failed:',e)}
+}
+window.addEventListener('resize',avLayout);
+function avShow(state,title,desc){
+ try{
+  const el=avBuild();clearTimeout(avHide);avHide=null;
+  el.dataset.state=state;
+  const t=el.querySelector('.aeroav-t'),d=el.querySelector('.aeroav-d');
+  if(t)t.textContent=title||'Loading…';if(d)d.textContent=desc||'';
+  el.hidden=false;avLayout();
+  document.querySelectorAll('dialog[open]').forEach(x=>{if(!x.inert){x.inert=true;avFrozen.push(x)}}); /* nothing behind the popup can be clicked or focused */
+  if('showPopover' in el){if(!el.matches(':popover-open'))el.showPopover()}
+  else{const dlg=document.querySelector('dialog[open]');if(dlg&&el.parentNode!==dlg)dlg.appendChild(el)} /* old browsers: live inside the open dialog so it is not covered */
+ }catch(e){console.warn('AEROSIM loading popup could not be shown:',e)}
 }
 function closeScanOverlay(){
- clearTimeout(avHide);avHide=null;if(!avEl)return;
- try{if(avEl.hidePopover&&avEl.matches(':popover-open'))avEl.hidePopover()}catch(_){}
+ clearTimeout(avHide);avHide=null;avFrozen.forEach(x=>{x.inert=false});avFrozen=[];if(!avEl)return;
+ try{if('showPopover' in avEl&&avEl.matches(':popover-open'))avEl.hidePopover()}catch(_){}
  avEl.hidden=true;
+ if(avEl.parentNode!==document.body)document.body.appendChild(avEl);
 }
 function scanOverlay(){} /* legacy name kept; unused */
-/* Upload phase: mirror the real step text that the existing upload code writes on the Publish button. */
-function avFromBtn(btn,title){
- const t=(btn.textContent||'').trim();if(!t)return;
- const m=t.match(/(\d+)%/);let desc=t,pct=null;
- if(/^(publishing|saving)/i.test(t))desc='Saving your mod…';
- else if(m&&/^uploading/i.test(t))pct=+m[1];
- avShow('up',title,desc,{step:0,pct});
-}
-function avObsStop(){if(avObs){avObs.disconnect();avObs=null}}
-function avUploadStart(btn,title){
- avObsStop();avShow('up',title,'Preparing upload…',{step:0});
- avObs=new MutationObserver(()=>avFromBtn(btn,title));avObs.observe(btn,{childList:true,characterData:true,subtree:true});
-}
-function avUploadFail(){avObsStop();closeScanOverlay()}
+function avObsStop(){} /* legacy name kept; the old button-text observer is gone */
+function avUploadStart(btn,title){avShow('up',(title||'Uploading your mod')+'…')}
+function avUploadFail(){closeScanOverlay()}
 function waitForModScan(modId){
  if(avRuns.has(modId))return avRuns.get(modId); /* no duplicate popups or polling loops */
  avObsStop();
  const run=(async()=>{
   const started=Date.now();let fails=0;
-  const scanning=d=>avShow('scan','Scanning your mod...',d||'Checking your upload for viruses and suspicious files.',{step:1});
+  const scanning=d=>avShow('scan','Scanning for viruses…',d||'');
   scanning();
   while(Date.now()-started<AV_TIMEOUT_MS){
    let row=null;
@@ -786,13 +765,13 @@ function waitForModScan(modId){
    if(row){
     const s=row.scan_status||'pending';
     if(s==='clean'&&row.published){avShow('clean','Scan passed!','Your mod is published.');return await avFinish('clean')}
-    if(s==='infected'){avShow('infected','Threat detected.','Your mod was not published.',{step:1});return await avFinish('infected')}
-    if(['review','error','rejected'].includes(s)){avShow('review','Needs review','Your upload needs manual review.',{step:1});return await avFinish('review')}
+    if(s==='infected'){avShow('infected','Threat detected','Your mod was not published.');return await avFinish('infected')}
+    if(['review','error','rejected'].includes(s)){avShow('review','Needs review','Your upload needs manual review.');return await avFinish('review')}
     if(fails===0)scanning();
    }
    await new Promise(r=>setTimeout(r,AV_POLL_MS));
   }
-  avShow('review','Scan is taking longer','Your mod stays unpublished until the scan finishes.',{step:1});
+  avShow('review','Scan is taking longer','Your mod stays unpublished until the scan finishes.');
   return await avFinish('timeout');
  })().finally(()=>avRuns.delete(modId));
  avRuns.set(modId,run);return run;
@@ -975,7 +954,7 @@ document.addEventListener('submit',async e=>{
  // New and edited mods remain hidden until the antivirus scanner approves them.
  // The scan popup is a separate floating component: the form closes first and polling runs in the background.
  const scanModId=savedMod.id,needsScan=savedMod.scanStatus==='pending';
- avObsStop();if(!needsScan)closeScanOverlay();
+ if(needsScan)avShow('scan','Scanning for viruses…','');else closeScanOverlay();
  // The database has confirmed the save. Update the local catalogue immediately;
  // a later refresh/network error must never turn a successful save into a failure.
  mods=[savedMod,...mods.filter(x=>x.id!==savedMod.id)];
@@ -1018,8 +997,7 @@ document.addEventListener('change',async e=>{
 document.addEventListener('click',async e=>{
  const c=s=>e.target.closest(s);
  if(c('[data-close]'))return c('dialog').close();
- if(c('#upBtn')||c('#navUp')){e.preventDefault();return openUp()}
- if(c('[data-auth]'))return openAcc();
+ if(c('#upBtn')||c('#navUp')){e.preventDefault();return openUp()} if(c('[data-auth]'))return openAcc();
  if(c('[data-sendcode]'))return sendCode($('#authF'));
   if(c('[data-reset]')){e.preventDefault();TAB='reset';RESET_STEP='request';RESET_EMAIL='';return authForm()}
  const tb=c('[data-tab]');if(tb){e.preventDefault();TAB=tb.dataset.tab;return authForm()}
