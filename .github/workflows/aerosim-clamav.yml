@@ -31,8 +31,6 @@ jobs:
         shell: bash
         env:
           BRIDGE: https://mqczfatgxuhrhrkniulf.supabase.co/functions/v1/aerosim-clamav-bridge
-          OIDC_URL: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
-          OIDC_TOKEN: ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}
         run: |
           set -euo pipefail
 
