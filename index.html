@@ -839,10 +839,8 @@ document.addEventListener('submit',async e=>{
  }
  // New and edited mods remain hidden until the antivirus scanner approves them.
  if(savedMod.scanStatus==='pending'){
-   try{await waitForModScan(savedMod.id)}catch(scanError){console.warn('Antivirus status polling paused:',scanError);closeScanOverlay();toast('Upload saved; antivirus scan is still pending.')}
+   try{savedMod.scanStatus=await waitForModScan(savedMod.id)}catch(scanError){console.warn('Antivirus status polling paused:',scanError);closeScanOverlay();toast('Upload saved; antivirus scan is still pending.')}
    try{mods=await store.all()}catch(e){console.warn('Post-scan catalogue refresh failed:',e)}
-   if(!mods.some(x=>x.id===savedMod.id))mods=mods.filter(x=>x.id!==savedMod.id);
-   if(savedMod.scanStatus!=='pending'){} 
  }
  // The database has confirmed the save. Update the local catalogue immediately;
  // a later refresh/network error must never turn a successful save into a failure.
@@ -858,7 +856,7 @@ document.addEventListener('submit',async e=>{
  if(typeof resetBrowseFilters==='function')resetBrowseFilters();else{cat='All';plat='all';q='';favOnly=false;window.pf='all';sort='new';if($('#q'))$('#q').value='';if($('#plat'))$('#plat').value='all';if($('#browseFilter'))$('#browseFilter').value='new|all';if($('#favT'))$('#favT').setAttribute('aria-pressed','false');if(typeof chips==='function')chips();}
  publishingMod=false;window.onbeforeunload=null;
  if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=originalSubmitText||'Upload mod';}
- f.reset();$('#descEditor').innerHTML='';$('#descRaw').value='';resetShotEditor();editingModId=null;draftModId=null;localStorage.removeItem('aerosimLargeDraftId');$('#dUp').close();render();toast(savedMod.scanStatus==='pending'?'Submitted for antivirus scanning. It will appear after it passes.':(old?'Updated '+m.title:'Published '+m.title));
+ f.reset();$('#descEditor').innerHTML='';$('#descRaw').value='';resetShotEditor();editingModId=null;draftModId=null;localStorage.removeItem('aerosimLargeDraftId');$('#dUp').close();render();toast(savedMod.scanStatus==='clean'?(old?'Update approved and published.':'Scan passed — your mod is published.'):(['infected','review','error','rejected'].includes(savedMod.scanStatus)?'Upload held for security review.':'Submitted for antivirus scanning. It will appear after it passes.'));
  }
 });
 document.addEventListener('input',e=>{if(e.target.id==='descEditor')$('#descRaw').value=e.target.innerHTML;if(e.target.form&&e.target.form.id==='accF'&&e.target.name==='name')$('#previewName').textContent=e.target.value||'Your display name'});
