@@ -67,6 +67,18 @@ jobs:
               "${BRIDGE}/result"
           }
 
+          post_progress() {
+            local mod_id="$1" stage="$2" file_name="$3" completed="$4" total="$5"
+            local token payload
+            token="$(get_oidc)"
+            payload="$(jq -cn --arg id "$mod_id" --arg stage "$stage" --arg file "$file_name" \
+              --argjson completed "$completed" --argjson total "$total" \
+              '{mod_id:$id,stage:$stage,current_file:$file,completed_steps:$completed,total_steps:$total}')"
+            curl --fail --silent --show-error -X POST \
+              -H "Authorization: Bearer ${token}" \
+              -H "Content-Type: application/json" --data "$payload" "${BRIDGE}/progress"
+          }
+
           for job_number in 1 2 3; do
             token="$(get_oidc)"
             response="$(curl --fail --silent --show-error \
@@ -84,6 +96,11 @@ jobs:
             detections='[]'
             scanned_files='[]'
             file_count="$(jq '.job.files | length' <<< "$response")"
+            total_steps=$((file_count * 2))
+            completed_steps=0
+            if [[ "$file_count" -gt 0 ]]; then
+              post_progress "$mod_id" "Preparing scan" "" "$completed_steps" "$total_steps"
+            fi
 
             if [[ "$file_count" -eq 0 ]]; then
               verdict="review"
@@ -97,20 +114,28 @@ jobs:
                 tmp="/tmp/aerosim-scan-${mod_id}-${index}.bin"
                 log="/tmp/aerosim-scan-${mod_id}-${index}.log"
 
+                post_progress "$mod_id" "Downloading file" "$file_name" "$completed_steps" "$total_steps"
                 if ! curl --fail --location --silent --show-error \
                   --retry 3 --retry-all-errors --max-time 900 \
                   "$file_url" -o "$tmp"; then
                   verdict="review"
+                  completed_steps=$((completed_steps + 2))
+                  post_progress "$mod_id" "Download failed; moving to review" "$file_name" "$completed_steps" "$total_steps"
                   continue
                 fi
+                completed_steps=$((completed_steps + 1))
+                post_progress "$mod_id" "Checking file integrity" "$file_name" "$completed_steps" "$total_steps"
 
                 actual_size="$(stat -c%s "$tmp")"
                 if [[ "$actual_size" != "$expected_size" ]]; then
                   verdict="review"
+                  completed_steps=$((completed_steps + 1))
+                  post_progress "$mod_id" "File check failed; moving to review" "$file_name" "$completed_steps" "$total_steps"
                   rm -f "$tmp"
                   continue
                 fi
 
+                post_progress "$mod_id" "Scanning with ClamAV" "$file_name" "$completed_steps" "$total_steps"
                 set +e
                 clamscan --infected --no-summary \
                   --alert-encrypted=yes \
@@ -137,6 +162,8 @@ jobs:
                   verdict="review"
                 fi
 
+                completed_steps=$((completed_steps + 1))
+                post_progress "$mod_id" "File scan complete" "$file_name" "$completed_steps" "$total_steps"
                 scanned_files="$(jq -cn --argjson old "$scanned_files" --arg name "$file_name" '$old + [$name] | .[:4]')"
                 rm -f "$tmp" "$log"
 
